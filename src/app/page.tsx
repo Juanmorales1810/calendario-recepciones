@@ -1,5 +1,9 @@
-import Hero from '@/components/interfaces/hero';
+import { DocumentCalendar } from '@/components/document-calendar';
 
 export default function Page() {
-    return <Hero />;
+    return (
+        <div className="mx-auto max-w-5xl py-12">
+            <DocumentCalendar />
+        </div>
+    );
 }

@@ -15,8 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'Plantilla Next.JS | Devanthos',
-    description: 'Agrega una descripción atractiva para mejorar el SEO de tu página.',
+    title: 'Calendario de Recepciones',
+    description:
+        'Una aplicación para gestionar y visualizar recepciones de documentos de manera eficiente.',
 };
 
 export default function RootLayout({
@@ -27,9 +28,7 @@ export default function RootLayout({
     return (
         <html lang="es">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                <Navbar />
                 {children}
-                <Footer />
             </body>
         </html>
     );
