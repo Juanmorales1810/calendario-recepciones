@@ -5,7 +5,6 @@ import { useState } from 'react';
 import { format, startOfDay, startOfMonth, parse, isValid } from 'date-fns';
 import { useSpecialDates, useDateCalculations } from './hooks';
 import {
-    CalendarHeader,
     ReferenceDatePicker,
     CalendarGrid,
     CalendarLegend,
@@ -60,8 +59,6 @@ export function DocumentCalendar() {
 
     return (
         <div className="mx-auto w-full space-y-6">
-            <CalendarHeader />
-
             <ReferenceDatePicker
                 value={referenceDateInput}
                 onChange={handleReferenceDateChange}
