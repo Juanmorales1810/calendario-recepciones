@@ -211,7 +211,9 @@ export function WeekView({ currentDate, events, onEventSelect, onEventCreate }: 
         <div className="flex h-full flex-col" data-slot="week-view">
             <div className="border-border/70 bg-background/80 sticky top-0 z-30 grid grid-cols-8 border-b backdrop-blur-md">
                 <div className="text-muted-foreground/70 py-2 text-center text-sm">
-                    <span className="max-[479px]:sr-only">{format(new Date(), 'O', { locale: es })}</span>
+                    <span className="max-[479px]:sr-only">
+                        {format(new Date(), 'O', { locale: es })}
+                    </span>
                 </div>
                 {days.map((day) => (
                     <div
@@ -221,7 +223,9 @@ export function WeekView({ currentDate, events, onEventSelect, onEventCreate }: 
                         <span aria-hidden="true" className="sm:hidden">
                             {format(day, 'E', { locale: es })[0]} {format(day, 'd')}
                         </span>
-                        <span className="max-sm:hidden">{format(day, 'EEE dd', { locale: es })}</span>
+                        <span className="max-sm:hidden">
+                            {format(day, 'EEE dd', { locale: es })}
+                        </span>
                     </div>
                 ))}
             </div>

@@ -271,7 +271,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                                                 'truncate',
                                                 !startDate && 'text-muted-foreground'
                                             )}>
-                                            {startDate ? format(startDate, 'PPP', { locale: es }) : 'Elegir fecha'}
+                                            {startDate
+                                                ? format(startDate, 'PPP', { locale: es })
+                                                : 'Elegir fecha'}
                                         </span>
                                         <RiCalendarLine
                                             aria-hidden="true"
@@ -337,7 +339,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                                                 'truncate',
                                                 !endDate && 'text-muted-foreground'
                                             )}>
-                                            {endDate ? format(endDate, 'PPP', { locale: es }) : 'Elegir fecha'}
+                                            {endDate
+                                                ? format(endDate, 'PPP', { locale: es })
+                                                : 'Elegir fecha'}
                                         </span>
                                         <RiCalendarLine
                                             aria-hidden="true"

@@ -230,7 +230,9 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                                                         }>
                                                         <div className="space-y-2">
                                                             <div className="text-sm font-medium">
-                                                                {format(day, 'EEE d', { locale: es })}
+                                                                {format(day, 'EEE d', {
+                                                                    locale: es,
+                                                                })}
                                                             </div>
                                                             <div className="space-y-1">
                                                                 {sortEvents(allEvents).map(
