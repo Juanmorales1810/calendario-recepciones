@@ -12,6 +12,7 @@ import {
     subMonths,
     subWeeks,
 } from 'date-fns';
+import { es } from 'date-fns/locale';
 import { ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, PlusIcon } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
@@ -30,26 +31,26 @@ import {
     MonthView,
     WeekCellsHeight,
     WeekView,
-} from '@/components';
+} from '@/components/calendar-event/index';
 
-export type { CalendarEvent, CalendarView } from '@/components/types';
+export type { CalendarEvent, CalendarView } from '@/components/calendar-event/types';
 export {
     AgendaDaysToShow,
     EventGap,
     EventHeight,
     WeekCellsHeight,
     addHoursToDate,
-} from '@/components';
+} from '@/components/calendar-event/index';
 export { AgendaView } from '@/components/calendar-event/agenda-view';
 export {
     CalendarDndProvider,
     useCalendarDnd,
 } from '@/components/calendar-event/calendar-dnd-context';
 export { DayView } from '@/components/calendar-event/day-view';
-export { EventDialog } from '@/components/event-dialog';
-export { MonthView } from '@/components/month-view';
-export { WeekView } from '@/components/week-view';
-export { EventItem } from '@/components/event-item';
+export { EventDialog } from '@/components/calendar-event/event-dialog';
+export { MonthView } from '@/components/calendar-event/month-view';
+export { WeekView } from '@/components/calendar-event/week-view';
+export { EventItem } from '@/components/calendar-event/event-item';
 export {
     getAgendaEventsForDay,
     isMultiDayEvent,
@@ -59,7 +60,7 @@ export {
     sortEvents,
     getBorderRadiusClasses,
     getEventColorClasses,
-} from '@/components/utils';
+} from '@/components/calendar-event/utils';
 export { DraggableEvent } from '@/components/calendar-event/draggable-event';
 export { DroppableCell } from '@/components/calendar-event/droppable-cell';
 export { useCurrentTimeIndicator } from '@/components/use-current-time-indicator';
@@ -203,8 +204,8 @@ export function EventCalendar({
         if (event.id) {
             onEventUpdate?.(event);
             // Show toast notification when an event is updated
-            toast(`Event "${event.title}" updated`, {
-                description: format(new Date(event.start), 'MMM d, yyyy'),
+            toast(`Evento "${event.title}" actualizado`, {
+                description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
                 position: 'bottom-left',
             });
         } else {
@@ -213,8 +214,8 @@ export function EventCalendar({
                 id: Math.random().toString(36).substring(2, 11),
             });
             // Show toast notification when an event is added
-            toast(`Event "${event.title}" added`, {
-                description: format(new Date(event.start), 'MMM d, yyyy'),
+            toast(`Evento "${event.title}" agregado`, {
+                description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
                 position: 'bottom-left',
             });
         }
@@ -230,8 +231,8 @@ export function EventCalendar({
 
         // Show toast notification when an event is deleted
         if (deletedEvent) {
-            toast(`Event "${deletedEvent.title}" deleted`, {
-                description: format(new Date(deletedEvent.start), 'MMM d, yyyy'),
+            toast(`Evento "${deletedEvent.title}" eliminado`, {
+                description: format(new Date(deletedEvent.start), 'MMM d, yyyy', { locale: es }),
                 position: 'bottom-left',
             });
         }
@@ -241,34 +242,36 @@ export function EventCalendar({
         onEventUpdate?.(updatedEvent);
 
         // Show toast notification when an event is updated via drag and drop
-        toast(`Event "${updatedEvent.title}" moved`, {
-            description: format(new Date(updatedEvent.start), 'MMM d, yyyy'),
+        toast(`Evento "${updatedEvent.title}" movido`, {
+            description: format(new Date(updatedEvent.start), 'MMM d, yyyy', { locale: es }),
             position: 'bottom-left',
         });
     };
 
     const viewTitle = useMemo(() => {
         if (view === 'month') {
-            return format(currentDate, 'MMMM yyyy');
+            return format(currentDate, 'MMMM yyyy', { locale: es });
         }
         if (view === 'week') {
             const start = startOfWeek(currentDate, { weekStartsOn: 0 });
             const end = endOfWeek(currentDate, { weekStartsOn: 0 });
             if (isSameMonth(start, end)) {
-                return format(start, 'MMMM yyyy');
+                return format(start, 'MMMM yyyy', { locale: es });
             }
-            return `${format(start, 'MMM')} - ${format(end, 'MMM yyyy')}`;
+            return `${format(start, 'MMM', { locale: es })} - ${format(end, 'MMM yyyy', { locale: es })}`;
         }
         if (view === 'day') {
             return (
                 <>
                     <span aria-hidden="true" className="min-[480px]:hidden">
-                        {format(currentDate, 'MMM d, yyyy')}
+                        {format(currentDate, 'MMM d, yyyy', { locale: es })}
                     </span>
                     <span aria-hidden="true" className="max-[479px]:hidden min-md:hidden">
-                        {format(currentDate, 'MMMM d, yyyy')}
+                        {format(currentDate, 'MMMM d, yyyy', { locale: es })}
                     </span>
-                    <span className="max-md:hidden">{format(currentDate, 'EEE MMMM d, yyyy')}</span>
+                    <span className="max-md:hidden">
+                        {format(currentDate, 'EEE MMMM d, yyyy', { locale: es })}
+                    </span>
                 </>
             );
         }
@@ -278,11 +281,11 @@ export function EventCalendar({
             const end = addDays(currentDate, AgendaDaysToShow - 1);
 
             if (isSameMonth(start, end)) {
-                return format(start, 'MMMM yyyy');
+                return format(start, 'MMMM yyyy', { locale: es });
             }
-            return `${format(start, 'MMM')} - ${format(end, 'MMM yyyy')}`;
+            return `${format(start, 'MMM', { locale: es })} - ${format(end, 'MMM yyyy', { locale: es })}`;
         }
-        return format(currentDate, 'MMMM yyyy');
+        return format(currentDate, 'MMMM yyyy', { locale: es });
     }, [currentDate, view]);
 
     return (

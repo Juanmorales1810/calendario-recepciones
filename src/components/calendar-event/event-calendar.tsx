@@ -33,7 +33,7 @@ import {
     WeekView,
 } from '@/components/calendar-event/index';
 
-export type { CalendarEvent, CalendarView } from '@/components/calendar-event/types';
+export type { CalendarEvent, CalendarView, EventColor } from '@/components/calendar-event/types';
 export {
     AgendaDaysToShow,
     EventGap,
@@ -310,7 +310,7 @@ export function EventCalendar({
                                 className="min-[480px]:hidden"
                                 size={16}
                             />
-                            <span className="max-[479px]:sr-only">Hoy</span>
+                            <span className="max-[479px]:sr-only">Today</span>
                         </Button>
                         <div className="flex items-center sm:gap-2">
                             <Button
@@ -351,13 +351,13 @@ export function EventCalendar({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="min-w-32">
                                 <DropdownMenuItem onClick={() => setView('month')}>
-                                    Mes <DropdownMenuShortcut>M</DropdownMenuShortcut>
+                                    Month <DropdownMenuShortcut>M</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('week')}>
-                                    Semana <DropdownMenuShortcut>W</DropdownMenuShortcut>
+                                    Week <DropdownMenuShortcut>W</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('day')}>
-                                    Día <DropdownMenuShortcut>D</DropdownMenuShortcut>
+                                    Day <DropdownMenuShortcut>D</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('agenda')}>
                                     Agenda <DropdownMenuShortcut>A</DropdownMenuShortcut>
@@ -376,7 +376,7 @@ export function EventCalendar({
                                 className="opacity-60 sm:-ms-1"
                                 size={16}
                             />
-                            <span className="max-sm:sr-only">Nuevo evento</span>
+                            <span className="max-sm:sr-only">New event</span>
                         </Button>
                     </div>
                 </div>
