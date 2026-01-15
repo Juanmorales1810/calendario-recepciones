@@ -5,7 +5,8 @@ import { format, isBefore } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import type { CalendarEvent, EventColor } from '@/components/calendar-event/event-calendar';
+import type { CalendarEvent } from '@/components/calendar-event/event-calendar';
+import type { EventColor } from '@/components/calendar-event/types';
 import {
     DefaultEndHour,
     DefaultStartHour,
