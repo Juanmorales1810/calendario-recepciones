@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
+import { useQueryState } from 'nuqs';
 import CalendarEvent from '@/components/calendar-event';
 import { DocumentCalendar } from '@/components/document-calendar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -9,9 +10,10 @@ import { Calendar, FileText } from 'lucide-react';
 import { Navbar } from '@/components/interfaces/navbar';
 import { useEvents } from '@/hooks/use-events';
 import { SyncBanner } from '@/components/sync-banner';
+import { RiLoader4Line } from '@remixicon/react';
 
-export default function Page() {
-    const [activeTab, setActiveTab] = useState<string>('document');
+function PageContent() {
+    const [activeTab, setActiveTab] = useQueryState('tab', { defaultValue: 'document' });
     const { data: session, status } = useSession();
     const { syncFromLocalStorage, syncStatus } = useEvents();
     const [showSyncBanner, setShowSyncBanner] = useState(false);
@@ -86,5 +88,18 @@ export default function Page() {
                 </Tabs>
             </div>
         </>
+    );
+}
+
+export default function Page() {
+    return (
+        <Suspense
+            fallback={
+                <div className="flex min-h-screen items-center justify-center">
+                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
+                </div>
+            }>
+            <PageContent />
+        </Suspense>
     );
 }
