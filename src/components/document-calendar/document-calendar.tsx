@@ -1,23 +1,13 @@
 'use client';
 
-import type React from 'react';
 import { useState } from 'react';
-import { format, startOfDay, startOfMonth, parse, isValid } from 'date-fns';
+import { startOfDay, startOfMonth } from 'date-fns';
 import { useSpecialDates, useDateCalculations } from './hooks';
-import {
-    ReferenceDatePicker,
-    CalendarGrid,
-    CalendarLegend,
-    ResultDialog,
-    SpecialDatesDialog,
-} from './components';
+import { CalendarGrid, ResultDialog, SpecialDatesDialog } from './components';
 import type { StatusInfo } from './types';
 
 export function DocumentCalendar() {
     const [referenceDate, setReferenceDate] = useState<Date>(startOfDay(new Date()));
-    const [referenceDateInput, setReferenceDateInput] = useState<string>(
-        format(new Date(), 'yyyy-MM-dd')
-    );
     const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined);
     const [dialogOpen, setDialogOpen] = useState(false);
     const [statusInfo, setStatusInfo] = useState<StatusInfo | null>(null);
@@ -40,13 +30,9 @@ export function DocumentCalendar() {
 
     const cutoffDate = calculateCutoffDate(referenceDate);
 
-    const handleReferenceDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        setReferenceDateInput(value);
-
-        const parsedDate = parse(value, 'yyyy-MM-dd', new Date());
-        if (isValid(parsedDate)) {
-            setReferenceDate(startOfDay(parsedDate));
+    const handleReferenceDateChange = (date: Date | undefined) => {
+        if (date) {
+            setReferenceDate(startOfDay(date));
         }
     };
 
@@ -59,12 +45,6 @@ export function DocumentCalendar() {
 
     return (
         <div className="mx-auto w-full space-y-6">
-            <ReferenceDatePicker
-                value={referenceDateInput}
-                onChange={handleReferenceDateChange}
-                onOpenConfig={() => setConfigDialogOpen(true)}
-            />
-
             <CalendarGrid
                 currentMonth={currentMonth}
                 onMonthChange={setCurrentMonth}
@@ -73,9 +53,9 @@ export function DocumentCalendar() {
                 isHoliday={isHoliday}
                 isEmergencyDay={isEmergencyDay}
                 onDateSelect={handleDateSelect}
+                onReferenceDateChange={handleReferenceDateChange}
+                onOpenConfig={() => setConfigDialogOpen(true)}
             />
-
-            <CalendarLegend />
 
             <ResultDialog
                 open={dialogOpen}
