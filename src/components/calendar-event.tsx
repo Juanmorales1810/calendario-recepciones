@@ -1,8 +1,8 @@
 'use client';
 
 import { type CalendarEvent, EventCalendar } from '@/components/calendar-event/event-calendar';
+import { CalendarEventSkeleton } from '@/components/calendar-event/calendar-event-skeleton';
 import { useEvents } from '@/hooks/use-events';
-import { RiLoader4Line } from '@remixicon/react';
 
 export default function CalendarEvent() {
     const { events, isLoading, error, addEvent, updateEvent, deleteEvent } = useEvents();
@@ -20,11 +20,7 @@ export default function CalendarEvent() {
     };
 
     if (isLoading) {
-        return (
-            <div className="flex h-96 items-center justify-center">
-                <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
-            </div>
-        );
+        return <CalendarEventSkeleton />;
     }
 
     return (
