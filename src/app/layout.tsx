@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import '@/styles/globals.css';
-import { Navbar } from '@/components/interfaces/navbar';
-import { Footer } from '@/components/interfaces/footer';
+import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/components/auth';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -15,9 +15,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-    title: 'Calendario de Recepciones',
+    title: 'Calendario Disei Conelci',
     description:
-        'Una aplicación para gestionar y visualizar recepciones de documentos de manera eficiente.',
+        'Una aplicación para gestionar y visualizar el calendario de recepciones de documentos del Disei Conelci.',
 };
 
 export default function RootLayout({
@@ -28,7 +28,10 @@ export default function RootLayout({
     return (
         <html lang="es">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                {children}
+                <AuthProvider>
+                    {children}
+                    <Toaster />
+                </AuthProvider>
             </body>
         </html>
     );
