@@ -4,6 +4,7 @@
 
 export { AgendaView } from './agenda-view';
 export { CalendarDndProvider, useCalendarDnd } from './calendar-dnd-context';
+export { CalendarEventSkeleton } from './calendar-event-skeleton';
 // Constants and utility exports
 export * from './constants';
 export { DayView } from './day-view';
