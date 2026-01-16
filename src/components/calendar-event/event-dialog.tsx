@@ -223,11 +223,11 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
         <Dialog onOpenChange={(open) => !open && onClose()} open={isOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{event?.id ? 'Edit Event' : 'Create Event'}</DialogTitle>
+                    <DialogTitle>{event?.id ? 'Editar Evento' : 'Crear Evento'}</DialogTitle>
                     <DialogDescription className="sr-only">
                         {event?.id
-                            ? 'Edit the details of this event'
-                            : 'Add a new event to your calendar'}
+                            ? 'Editar un evento existente en tu calendario'
+                            : 'Agregar un nuevo evento a tu calendario'}
                     </DialogDescription>
                 </DialogHeader>
                 {error && (
@@ -237,7 +237,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                 )}
                 <div className="grid gap-4 py-4">
                     <div className="*:not-first:mt-1.5">
-                        <Label htmlFor="title">Title</Label>
+                        <Label htmlFor="title">Título</Label>
                         <Input
                             id="title"
                             onChange={(e) => setTitle(e.target.value)}
@@ -246,7 +246,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     </div>
 
                     <div className="*:not-first:mt-1.5">
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">Descripción</Label>
                         <Textarea
                             id="description"
                             onChange={(e) => setDescription(e.target.value)}
@@ -257,7 +257,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
 
                     <div className="flex gap-4">
                         <div className="flex-1 *:not-first:mt-1.5">
-                            <Label htmlFor="start-date">Start Date</Label>
+                            <Label htmlFor="start-date">Fecha de inicio</Label>
                             <Popover onOpenChange={setStartDateOpen} open={startDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -306,10 +306,10 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
 
                         {!allDay && (
                             <div className="min-w-28 *:not-first:mt-1.5">
-                                <Label htmlFor="start-time">Start Time</Label>
+                                <Label htmlFor="start-time">Hora de inicio</Label>
                                 <Select onValueChange={setStartTime} value={startTime}>
                                     <SelectTrigger id="start-time">
-                                        <SelectValue placeholder="Select time" />
+                                        <SelectValue placeholder="Seleccionar hora" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {timeOptions.map((option) => (
@@ -325,7 +325,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
 
                     <div className="flex gap-4">
                         <div className="flex-1 *:not-first:mt-1.5">
-                            <Label htmlFor="end-date">End Date</Label>
+                            <Label htmlFor="end-date">Fecha de fin</Label>
                             <Popover onOpenChange={setEndDateOpen} open={endDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -371,10 +371,10 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
 
                         {!allDay && (
                             <div className="min-w-28 *:not-first:mt-1.5">
-                                <Label htmlFor="end-time">End Time</Label>
+                                <Label htmlFor="end-time">Hora de fin</Label>
                                 <Select onValueChange={setEndTime} value={endTime}>
                                     <SelectTrigger id="end-time">
-                                        <SelectValue placeholder="Select time" />
+                                        <SelectValue placeholder="Seleccionar hora" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         {timeOptions.map((option) => (
@@ -394,11 +394,11 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             id="all-day"
                             onCheckedChange={(checked) => setAllDay(checked === true)}
                         />
-                        <Label htmlFor="all-day">All day</Label>
+                        <Label htmlFor="all-day">Todo el día</Label>
                     </div>
 
                     <div className="*:not-first:mt-1.5">
-                        <Label htmlFor="location">Location</Label>
+                        <Label htmlFor="location">Ubicación</Label>
                         <Input
                             id="location"
                             onChange={(e) => setLocation(e.target.value)}
@@ -407,7 +407,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     </div>
                     <fieldset className="space-y-4">
                         <legend className="text-foreground text-sm leading-none font-medium">
-                            Etiquette
+                            Etiqueta de color
                         </legend>
                         <RadioGroup
                             className="flex gap-1.5"
@@ -442,9 +442,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     )}
                     <div className="flex flex-1 justify-end gap-2">
                         <Button onClick={onClose} variant="outline">
-                            Cancel
+                            Cancelar
                         </Button>
-                        <Button onClick={handleSave}>Save</Button>
+                        <Button onClick={handleSave}>Guardar</Button>
                     </div>
                 </DialogFooter>
             </DialogContent>

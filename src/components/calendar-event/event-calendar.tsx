@@ -116,7 +116,7 @@ export function EventCalendar({
                 case 'm':
                     setView('month');
                     break;
-                case 'w':
+                case 's':
                     setView('week');
                     break;
                 case 'd':
@@ -310,7 +310,7 @@ export function EventCalendar({
                                 className="min-[480px]:hidden"
                                 size={16}
                             />
-                            <span className="max-[479px]:sr-only">Today</span>
+                            <span className="max-[479px]:sr-only">Hoy</span>
                         </Button>
                         <div className="flex items-center sm:gap-2">
                             <Button
@@ -328,7 +328,11 @@ export function EventCalendar({
                                 <ChevronRightIcon aria-hidden="true" size={16} />
                             </Button>
                         </div>
-                        <h2 className="text-sm font-semibold sm:text-lg md:text-xl">{viewTitle}</h2>
+                        <h2 className="text-sm font-semibold sm:text-lg md:text-xl">
+                            {typeof viewTitle === 'string'
+                                ? viewTitle.charAt(0).toUpperCase() + viewTitle.slice(1)
+                                : viewTitle}
+                        </h2>
                     </div>
                     <div className="flex items-center gap-2">
                         <DropdownMenu>
@@ -339,7 +343,13 @@ export function EventCalendar({
                                             {view.charAt(0).toUpperCase()}
                                         </span>
                                         <span className="max-[479px]:sr-only">
-                                            {view.charAt(0).toUpperCase() + view.slice(1)}
+                                            {view === 'month'
+                                                ? 'Mes'
+                                                : view === 'week'
+                                                  ? 'Semana'
+                                                  : view === 'day'
+                                                    ? 'Día'
+                                                    : 'Agenda'}
                                         </span>
                                     </span>
                                     <ChevronDownIcon
@@ -351,13 +361,13 @@ export function EventCalendar({
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="min-w-32">
                                 <DropdownMenuItem onClick={() => setView('month')}>
-                                    Month <DropdownMenuShortcut>M</DropdownMenuShortcut>
+                                    Mes <DropdownMenuShortcut>M</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('week')}>
-                                    Week <DropdownMenuShortcut>W</DropdownMenuShortcut>
+                                    Semana <DropdownMenuShortcut>S</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('day')}>
-                                    Day <DropdownMenuShortcut>D</DropdownMenuShortcut>
+                                    Día <DropdownMenuShortcut>D</DropdownMenuShortcut>
                                 </DropdownMenuItem>
                                 <DropdownMenuItem onClick={() => setView('agenda')}>
                                     Agenda <DropdownMenuShortcut>A</DropdownMenuShortcut>
@@ -376,7 +386,7 @@ export function EventCalendar({
                                 className="opacity-60 sm:-ms-1"
                                 size={16}
                             />
-                            <span className="max-sm:sr-only">New event</span>
+                            <span className="max-sm:sr-only">Nuevo evento</span>
                         </Button>
                     </div>
                 </div>

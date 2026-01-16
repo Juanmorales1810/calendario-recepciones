@@ -136,7 +136,7 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                                             {format(day, 'd')}
                                         </div>
                                         <div
-                                            className="min-h-[calc((var(--event-height)+var(--event-gap))*2)] sm:min-h-[calc((var(--event-height)+var(--event-gap))*3)] lg:min-h-[calc((var(--event-height)+var(--event-gap))*4)]"
+                                            className="min-h-[calc((var(--event-height)+var(--event-gap))*2)] sm:min-h-[calc((var(--event-height)+var(--event-gap))*1.75)] 2xl:min-h-[calc((var(--event-height)+var(--event-gap))*3)]"
                                             ref={isReferenceCell ? contentRef : null}>
                                             {sortEvents(allDayEvents).map((event, index) => {
                                                 const eventStart = new Date(event.start);
@@ -215,7 +215,7 @@ export function MonthView({ currentDate, events, onEventSelect, onEventCreate }:
                                                             <span>
                                                                 + {remainingCount}{' '}
                                                                 <span className="max-sm:sr-only">
-                                                                    more
+                                                                    más
                                                                 </span>
                                                             </span>
                                                         </button>
