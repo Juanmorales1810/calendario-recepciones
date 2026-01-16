@@ -3,6 +3,7 @@
 import { Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { UserMenu } from '@/components/auth';
+import { ModeToggle } from '../toggle-mode';
 
 interface NavbarProps {
     onSync?: () => Promise<void>;
@@ -20,7 +21,10 @@ const Navbar = ({ onSync, hasPendingSync }: NavbarProps) => {
                         <Calendar className="h-6 w-6" />
                         <span>Calendario Disei</span>
                     </Link>
-                    <UserMenu onSync={onSync} hasPendingSync={hasPendingSync} />
+                    <div className="flex items-center justify-center gap-2">
+                        <ModeToggle />
+                        <UserMenu onSync={onSync} hasPendingSync={hasPendingSync} />
+                    </div>
                 </div>
             </div>
         </header>
