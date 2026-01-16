@@ -1,228 +1,168 @@
-# 🚀 Next.js Template - Devanthos
+# � Calendario Disei Conelci
 
-Una plantilla moderna y lista para producción de **Next.js 15** con **Tailwind CSS 4**, **shadcn/ui** y **TypeScript**. Diseñada por **Devanthos** para acelerar el desarrollo de aplicaciones web modernas.
+Una aplicación de calendario para gestionar recepciones de documentos y eventos, con autenticación de usuarios y sincronización offline.
 
 ![Next.js](https://img.shields.io/badge/Next.js-16.0.0-black)
 ![React](https://img.shields.io/badge/React-19.2.0-blue)
 ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue)
-![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-38bdf8)
-![License](https://img.shields.io/badge/license-MIT-green)
+![MongoDB](https://img.shields.io/badge/MongoDB-green)
+![NextAuth](https://img.shields.io/badge/NextAuth-5-purple)
 
 ## ✨ Características
 
-- 🔥 **Next.js 16** con App Router y React 19
-- 🎨 **Tailwind CSS 4** para diseño moderno y responsivo
-- 🧩 **shadcn/ui** - Componentes UI accesibles y customizables
-- 📝 **TypeScript** para desarrollo type-safe
-- 🔍 **ESLint** y **Prettier** para código limpio
-- 🚀 **Turbopack** para compilación ultra-rápida
-- 🎭 **Lucide React** para iconografía moderna
-- 🎯 **CVA (Class Variance Authority)** para variantes de componentes
-- 📱 **Responsive** y **Mobile-first** por defecto
+- 🔐 **Autenticación con NextAuth** - Registro e inicio de sesión de usuarios
+- 📅 **Calendario de Eventos** - Crea, edita y elimina eventos
+- 📄 **Calendario de Recepciones** - Gestión de documentos
+- 💾 **Almacenamiento Dual** - MongoDB + localStorage para funcionamiento offline
+- 🔄 **Sincronización Automática** - Sincroniza eventos locales al iniciar sesión
+- 📱 **Diseño Responsivo** - Funciona en escritorio y móvil
 
 ## 🛠️ Stack Tecnológico
 
-### Core
-
-- **Framework**: Next.js 16.0.0
-- **React**: 19.2.0
-- **TypeScript**: 5
+- **Framework**: Next.js 16 con App Router
+- **Base de Datos**: MongoDB con Mongoose
+- **Autenticación**: NextAuth.js v5
 - **Styling**: Tailwind CSS 4
-- **Package Manager**: pnpm
+- **UI**: shadcn/ui
+- **TypeScript**: Tipado estricto
 
-### UI y Componentes
+## 🚀 Configuración
 
-- **shadcn/ui**: Componentes accesibles con Radix UI
-- **Radix UI**: Primitivos accesibles (Accordion, Dialog, Navigation Menu)
-- **Lucide React**: Iconos SVG optimizados
-- **CVA**: Gestión de variantes de componentes
+### 1. Instalar dependencias
 
-### Herramientas de Desarrollo
+```bash
+pnpm install
+```
 
-- **ESLint**: Linting con configuración de Next.js
-- **Prettier**: Formateo de código con plugin de Tailwind
-- **Turbopack**: Bundler de desarrollo ultra-rápido
+### 2. Configurar variables de entorno
 
-## 🚀 Inicio Rápido
+Copia el archivo de ejemplo y configura tus variables:
 
-### Prerrequisitos
+```bash
+cp .env.local.example .env.local
+```
 
-- Node.js 18.0 o superior
-- pnpm (recomendado) o npm/yarn
+Edita `.env.local` con tus credenciales:
 
-### Instalación
+```env
+# MongoDB - Obtén tu URI de MongoDB Atlas o usa una instancia local
+MONGODB_URI=mongodb+srv://usuario:contraseña@cluster.mongodb.net/calendario-recepciones
 
-1. **Clona el repositorio**
+# NextAuth - Genera un secreto seguro con: openssl rand -base64 32
+AUTH_SECRET=tu-secreto-super-seguro-aqui
+AUTH_URL=http://localhost:3000
+```
 
-    ```bash
-    git clone https://github.com/devanthos/next-template-devanthos.git
-    cd next-template-devanthos
-    ```
+### 3. Configurar MongoDB
 
-2. **Instala las dependencias**
+1. Crea una cuenta en [MongoDB Atlas](https://www.mongodb.com/atlas) (gratis)
+2. Crea un nuevo cluster
+3. Crea un usuario de base de datos
+4. Obtén la cadena de conexión y reemplázala en `MONGODB_URI`
+5. Agrega tu IP a la lista blanca en Network Access
 
-    ```bash
-    pnpm install
-    ```
+### 4. Ejecutar en desarrollo
 
-3. **Ejecuta el servidor de desarrollo**
+```bash
+pnpm dev
+```
 
-    ```bash
-    pnpm dev
-    ```
-
-4. **¡Abre tu navegador!**
-
-    Visita [http://localhost:3000](http://localhost:3000) para ver tu aplicación en funcionamiento.
+Visita [http://localhost:3000](http://localhost:3000)
 
 ## 📁 Estructura del Proyecto
 
 ```
-next-template-devanthos/
-├── src/
-│   ├── app/                 # App Router de Next.js
-│   │   ├── layout.tsx       # Layout raíz
-│   │   └── page.tsx         # Página principal
-│   ├── components/          # Componentes reutilizables
-│   │   ├── interfaces/      # Componentes de interfaz
-│   │   │   ├── hero.tsx     # Componente Hero
-│   │   │   ├── navbar.tsx   # Barra de navegación
-│   │   │   └── footer.tsx   # Pie de página
-│   │   └── ui/              # Componentes UI de shadcn
-│   │       ├── button.tsx   # Componente Button
-│   │       ├── accordion.tsx
-│   │       └── ...
-│   ├── lib/                 # Utilidades y configuraciones
-│   │   └── utils.ts         # Funciones auxiliares
-│   └── styles/              # Estilos globales
-│       └── globals.css      # CSS global con Tailwind
-├── public/                  # Archivos estáticos
-├── components.json          # Configuración de shadcn/ui
-├── tailwind.config.js       # Configuración de Tailwind
-├── tsconfig.json           # Configuración de TypeScript
-└── package.json            # Dependencias y scripts
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── [...nextauth]/route.ts  # Handlers de NextAuth
+│   │   │   └── register/route.ts       # Registro de usuarios
+│   │   └── events/
+│   │       ├── route.ts                # GET/POST eventos
+│   │       ├── [id]/route.ts           # GET/PUT/DELETE evento
+│   │       └── sync/route.ts           # Sincronización
+│   ├── auth/
+│   │   ├── signin/page.tsx             # Página de login
+│   │   ├── register/page.tsx           # Página de registro
+│   │   └── error/page.tsx              # Página de error
+│   ├── layout.tsx
+│   └── page.tsx
+├── components/
+│   ├── auth/                           # Componentes de autenticación
+│   ├── calendar-event/                 # Calendario de eventos
+│   ├── document-calendar/              # Calendario de documentos
+│   └── ui/                             # Componentes UI
+├── hooks/
+│   └── use-events.ts                   # Hook para gestión de eventos
+├── lib/
+│   ├── auth.ts                         # Configuración de NextAuth
+│   ├── mongodb.ts                      # Conexión a MongoDB
+│   └── utils.ts
+├── models/
+│   ├── User.ts                         # Modelo de Usuario
+│   └── Event.ts                        # Modelo de Evento
+└── types/
+    └── next-auth.d.ts                  # Tipos de NextAuth
 ```
 
-## 📜 Scripts Disponibles
+## 🔐 Autenticación
+
+### Flujo de Usuario
+
+1. **Sin autenticación**: Los eventos se guardan solo en localStorage
+2. **Al registrarse/iniciar sesión**: Se muestra un banner para sincronizar eventos locales
+3. **Sincronización**: Los eventos de localStorage se migran a MongoDB
+4. **Funcionamiento normal**: Los eventos se guardan en ambos (MongoDB + localStorage como caché)
+
+### Funcionamiento Offline
+
+- Los eventos siempre se guardan en localStorage
+- Si hay conexión y el usuario está autenticado, también se sincronizan con MongoDB
+- Si hay error de red, los cambios quedan pendientes de sincronización
+
+## 📜 Scripts
 
 ```bash
-# Desarrollo con Turbopack
-pnpm dev
-
-# Construcción para producción
-pnpm build
-
-# Iniciar servidor de producción
-pnpm start
-
-# Linting
-pnpm lint
+pnpm dev        # Desarrollo con Turbopack
+pnpm build      # Construir para producción
+pnpm start      # Iniciar servidor de producción
+pnpm lint       # Ejecutar linter
 ```
 
-## 🎨 Personalización
+## 🗄️ API Endpoints
 
-### Colores y Temas
+### Autenticación
 
-El template utiliza un sistema de variables CSS para fácil personalización. Puedes modificar los colores en `src/styles/globals.css`:
+- `POST /api/auth/register` - Registrar nuevo usuario
+- `POST /api/auth/callback/credentials` - Iniciar sesión
+- `POST /api/auth/signout` - Cerrar sesión
 
-```css
-:root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
-    --primary: 221.2 83.2% 53.3%;
-    /* ... más variables */
-}
-```
+### Eventos
 
-### Componentes shadcn/ui
-
-Para agregar nuevos componentes de shadcn/ui:
-
-```bash
-npx shadcn@latest add [component-name]
-```
-
-Ejemplo:
-
-```bash
-npx shadcn@latest add card
-npx shadcn@latest add input
-npx shadcn@latest add label
-```
-
-### Fuentes
-
-El template utiliza la fuente **Geist** de Vercel, optimizada automáticamente por Next.js. Puedes cambiarla en `src/app/layout.tsx`.
-
-## 🧩 Componentes Incluidos
-
-### Interfaces
-
-- **Hero**: Sección principal con call-to-action
-- **Navbar**: Barra de navegación responsiva
-- **Footer**: Pie de página con enlaces
-
-### UI (shadcn/ui)
-
-- **Button**: Botón con múltiples variantes
-- **Accordion**: Componente desplegable
-- **Navigation Menu**: Menú de navegación avanzado
-- **Sheet**: Panel lateral deslizante
-
-## 📱 Responsive Design
-
-El template está construido con un enfoque **mobile-first** utilizando las utilidades responsivas de Tailwind CSS:
-
-```jsx
-<div className="text-sm sm:text-base md:text-lg lg:text-xl">Texto responsivo</div>
-```
+- `GET /api/events` - Obtener todos los eventos del usuario
+- `POST /api/events` - Crear nuevo evento
+- `GET /api/events/:id` - Obtener evento específico
+- `PUT /api/events/:id` - Actualizar evento
+- `DELETE /api/events/:id` - Eliminar evento
+- `POST /api/events/sync` - Sincronizar eventos desde localStorage
 
 ## 🚀 Despliegue
 
-### Vercel (Recomendado)
+### Vercel
 
-1. Conecta tu repositorio a [Vercel](https://vercel.com)
-2. Vercel detectará automáticamente que es un proyecto Next.js
-3. ¡Despliega con un clic!
+1. Conecta tu repositorio a Vercel
+2. Configura las variables de entorno en el dashboard
+3. Despliega
 
-### Otros Proveedores
+### Variables de entorno en producción
 
-```bash
-# Construir para producción
-pnpm build
+Asegúrate de configurar:
 
-# Los archivos estáticos se generan en .next/
-```
-
-## 🤝 Contribución
-
-Las contribuciones son bienvenidas. Por favor:
-
-1. Fork el proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/nueva-funcionalidad`)
-3. Commit tus cambios (`git commit -m 'Agrega nueva funcionalidad'`)
-4. Push a la rama (`git push origin feature/nueva-funcionalidad`)
-5. Abre un Pull Request
+- `MONGODB_URI`
+- `AUTH_SECRET`
+- `AUTH_URL` (tu dominio de producción)
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT. Consulta el archivo `LICENSE` para más detalles.
-
-## 🙋‍♂️ Soporte
-
-Si tienes preguntas o necesitas ayuda:
-
-- 📧 Email: soporte@devanthos.com
-- 🐛 Issues: [GitHub Issues](https://github.com/devanthos/next-template-devanthos/issues)
-- 📖 Documentación: [Docs](https://devanthos.com/docs)
-
-## 🔗 Enlaces Útiles
-
-- [Next.js Documentation](https://nextjs.org/docs)
-- [Tailwind CSS Documentation](https://tailwindcss.com/docs)
-- [shadcn/ui Documentation](https://ui.shadcn.com)
-- [TypeScript Documentation](https://www.typescriptlang.org/docs)
-
----
-
-**Desarrollado con ❤️ por [Devanthos](https://devanthos.com)**
+MIT
