@@ -5,6 +5,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { AuthProvider } from '@/components/auth';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { ThemeProvider } from '@/components/theme-provider';
+import { PWAInstall } from '@/components/pwa-install';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -20,6 +21,20 @@ export const metadata: Metadata = {
     title: 'Calendario Disei Conelci',
     description:
         'Una aplicación para gestionar y visualizar el calendario de recepciones de documentos del Disei Conelci.',
+    manifest: '/manifest.json',
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'default',
+        title: 'Calendario',
+    },
+};
+
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+    themeColor: '#0ea5e9',
 };
 
 export default function RootLayout({
@@ -29,8 +44,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="es" suppressHydrationWarning>
+            <head>
+                <link rel="icon" href="/favicon.ico" sizes="any" />
+                <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+                <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+            </head>
             <body
-                className={`${geistSans.variable} ${geistMono.variable} relative min-h-screen w-full antialiased`}>
+                className={`${geistSans.variable} ${geistMono.variable} bg-background relative min-h-screen w-full antialiased`}>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme="system"
@@ -85,6 +105,7 @@ export default function RootLayout({
                     />
                     <NuqsAdapter>
                         <AuthProvider>
+                            <PWAInstall />
                             {children}
                             <Toaster />
                         </AuthProvider>
