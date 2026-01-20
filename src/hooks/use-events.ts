@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 import type { CalendarEvent } from '@/components/calendar-event/types';
+import { scheduleEventNotifications, cancelEventNotifications } from '@/lib/notifications';
 
 const STORAGE_KEY = 'calendar-events';
 const SYNC_STATUS_KEY = 'calendar-sync-status';
@@ -12,24 +13,35 @@ interface SyncStatus {
     pendingSync: boolean;
 }
 
+interface UseEventsOptions {
+    calendarId?: string; // Filtrar por calendario específico
+}
+
 interface UseEventsReturn {
     events: CalendarEvent[];
     isLoading: boolean;
     error: string | null;
     syncStatus: SyncStatus;
-    addEvent: (event: CalendarEvent) => Promise<void>;
+    addEvent: (event: CalendarEvent, calendarId?: string) => Promise<void>;
     updateEvent: (event: CalendarEvent) => Promise<void>;
     deleteEvent: (eventId: string) => Promise<void>;
     syncFromLocalStorage: () => Promise<void>;
     clearLocalStorage: () => void;
+    refresh: () => Promise<void>;
 }
 
-// Función auxiliar para convertir fechas
-function parseEvent(event: any): CalendarEvent {
+// Función auxiliar para convertir fechas y preservar calendarId
+function parseEvent(event: Record<string, unknown>): CalendarEvent {
     return {
-        ...event,
-        start: new Date(event.start),
-        end: new Date(event.end),
+        id: event.id as string,
+        title: event.title as string,
+        description: event.description as string | undefined,
+        start: new Date(event.start as string),
+        end: new Date(event.end as string),
+        allDay: event.allDay as boolean | undefined,
+        color: event.color as CalendarEvent['color'],
+        location: event.location as string | undefined,
+        calendarId: event.calendarId as string | undefined,
     };
 }
 
@@ -61,7 +73,8 @@ function loadFromLocalStorage(): CalendarEvent[] {
     return [];
 }
 
-export function useEvents(): UseEventsReturn {
+export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
+    const { calendarId } = options;
     const { data: session, status } = useSession();
     const [events, setEvents] = useState<CalendarEvent[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -71,47 +84,69 @@ export function useEvents(): UseEventsReturn {
         pendingSync: false,
     });
 
-    // Cargar eventos al montar o cuando cambia la sesión
-    useEffect(() => {
-        async function loadEvents() {
-            setIsLoading(true);
-            setError(null);
+    // Función para cargar eventos
+    const loadEvents = useCallback(async () => {
+        setIsLoading(true);
+        setError(null);
 
-            if (status === 'loading') {
-                return;
-            }
-
-            if (status === 'authenticated' && session?.user?.id) {
-                // Usuario autenticado: cargar desde API
-                try {
-                    const response = await fetch('/api/events');
-                    if (response.ok) {
-                        const data = await response.json();
-                        const serverEvents = data.events.map(parseEvent);
-                        setEvents(serverEvents);
-                        // También actualizar localStorage como cache offline
-                        saveToLocalStorage(serverEvents);
-                    } else {
-                        throw new Error('Error al cargar eventos del servidor');
-                    }
-                } catch (err) {
-                    console.error('Error cargando eventos:', err);
-                    // Fallback a localStorage si hay error de red
-                    const localEvents = loadFromLocalStorage();
-                    setEvents(localEvents);
-                    setError('Trabajando en modo offline');
-                }
-            } else {
-                // Usuario no autenticado: usar solo localStorage
-                const localEvents = loadFromLocalStorage();
-                setEvents(localEvents);
-            }
-
-            setIsLoading(false);
+        if (status === 'loading') {
+            return;
         }
 
+        if (status === 'authenticated' && session?.user?.id) {
+            // Usuario autenticado: cargar desde API
+            try {
+                let url = '/api/events';
+
+                // Detectar si el calendarId es un shareToken (64 caracteres hex)
+                const isShareToken =
+                    calendarId && calendarId.length === 64 && /^[a-f0-9]+$/.test(calendarId);
+
+                if (isShareToken) {
+                    // Es un calendario compartido, usar el endpoint de shared
+                    url = `/api/shared/${calendarId}`;
+                } else if (calendarId) {
+                    // Es un calendario propio
+                    url += `?calendarId=${calendarId}`;
+                }
+
+                console.log('Fetching events from:', url);
+
+                const response = await fetch(url);
+                if (response.ok) {
+                    const data = await response.json();
+
+                    // El endpoint de shared devuelve { events: [...] }, el de events también
+                    const serverEvents = data.events.map(parseEvent);
+
+                    console.log('Received events:', serverEvents.length);
+
+                    setEvents(serverEvents);
+                    // También actualizar localStorage como cache offline
+                    saveToLocalStorage(serverEvents);
+                } else {
+                    throw new Error('Error al cargar eventos del servidor');
+                }
+            } catch (err) {
+                console.error('Error cargando eventos:', err);
+                // Fallback a localStorage si hay error de red
+                const localEvents = loadFromLocalStorage();
+                setEvents(localEvents);
+                setError('Trabajando en modo offline');
+            }
+        } else {
+            // Usuario no autenticado: usar solo localStorage
+            const localEvents = loadFromLocalStorage();
+            setEvents(localEvents);
+        }
+
+        setIsLoading(false);
+    }, [session?.user?.id, status, calendarId]);
+
+    // Cargar eventos al montar o cuando cambia la sesión o el calendario
+    useEffect(() => {
         loadEvents();
-    }, [session?.user?.id, status]);
+    }, [loadEvents]);
 
     // Cargar estado de sincronización
     useEffect(() => {
@@ -192,7 +227,7 @@ export function useEvents(): UseEventsReturn {
 
     // Agregar evento
     const addEvent = useCallback(
-        async (event: CalendarEvent) => {
+        async (event: CalendarEvent, targetCalendarId?: string) => {
             // Generar ID local si no existe
             const eventWithId = {
                 ...event,
@@ -206,6 +241,9 @@ export function useEvents(): UseEventsReturn {
                 return updated;
             });
 
+            // Programar notificaciones para el evento
+            scheduleEventNotifications(eventWithId);
+
             if (session?.user?.id) {
                 try {
                     const response = await fetch('/api/events', {
@@ -216,6 +254,7 @@ export function useEvents(): UseEventsReturn {
                             start: eventWithId.start.toISOString(),
                             end: eventWithId.end.toISOString(),
                             localId: eventWithId.id,
+                            calendarId: targetCalendarId || calendarId,
                         }),
                     });
 
@@ -237,7 +276,7 @@ export function useEvents(): UseEventsReturn {
                 }
             }
         },
-        [session?.user?.id]
+        [session?.user?.id, calendarId]
     );
 
     // Actualizar evento
@@ -249,6 +288,10 @@ export function useEvents(): UseEventsReturn {
                 saveToLocalStorage(updated);
                 return updated;
             });
+
+            // Actualizar notificaciones programadas
+            cancelEventNotifications(event.id);
+            scheduleEventNotifications(event);
 
             if (session?.user?.id) {
                 try {
@@ -284,6 +327,9 @@ export function useEvents(): UseEventsReturn {
                 return updated;
             });
 
+            // Cancelar notificaciones programadas
+            cancelEventNotifications(eventId);
+
             if (session?.user?.id) {
                 try {
                     const response = await fetch(`/api/events/${eventId}`, {
@@ -317,5 +363,6 @@ export function useEvents(): UseEventsReturn {
         deleteEvent,
         syncFromLocalStorage,
         clearLocalStorage,
+        refresh: loadEvents,
     };
 }
