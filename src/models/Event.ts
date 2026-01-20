@@ -3,6 +3,7 @@ import mongoose, { Document, Model, Schema } from 'mongoose';
 export interface IEvent extends Document {
     _id: mongoose.Types.ObjectId;
     userId: mongoose.Types.ObjectId;
+    calendarId: mongoose.Types.ObjectId;
     title: string;
     description?: string;
     start: Date;
@@ -21,6 +22,12 @@ const EventSchema = new Schema<IEvent>(
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: [true, 'El ID de usuario es requerido'],
+            index: true,
+        },
+        calendarId: {
+            type: Schema.Types.ObjectId,
+            ref: 'Calendar',
+            required: [true, 'El ID de calendario es requerido'],
             index: true,
         },
         title: {
@@ -66,7 +73,10 @@ const EventSchema = new Schema<IEvent>(
     }
 );
 
-// Índice compuesto para buscar eventos de un usuario en un rango de fechas
+// Índice compuesto para buscar eventos de un calendario en un rango de fechas
+EventSchema.index({ calendarId: 1, start: 1, end: 1 });
+
+// Índice para buscar eventos de un usuario
 EventSchema.index({ userId: 1, start: 1, end: 1 });
 
 // Índice para buscar por localId (útil para sincronización)
