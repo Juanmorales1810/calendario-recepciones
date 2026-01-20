@@ -6,6 +6,7 @@ import { AuthProvider } from '@/components/auth';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { ThemeProvider } from '@/components/theme-provider';
 import { PWAInstall } from '@/components/pwa-install';
+import { InstallPrompt } from '@/components/install-prompt';
 
 const geistSans = Geist({
     variable: '--font-geist-sans',
@@ -21,7 +22,6 @@ export const metadata: Metadata = {
     title: 'Calendario Disei Conelci',
     description:
         'Una aplicación para gestionar y visualizar el calendario de recepciones de documentos del Disei Conelci.',
-    manifest: '/manifest.json',
     appleWebApp: {
         capable: true,
         statusBarStyle: 'default',
@@ -106,6 +106,7 @@ export default function RootLayout({
                     <NuqsAdapter>
                         <AuthProvider>
                             <PWAInstall />
+                            <InstallPrompt />
                             {children}
                             <Toaster />
                         </AuthProvider>

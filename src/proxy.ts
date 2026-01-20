@@ -8,6 +8,9 @@ export function proxy(request: NextRequest) {
     const publicRoutes = ['/auth/signin', '/auth/register', '/auth/error'];
     const isPublicRoute = publicRoutes.includes(pathname);
 
+    // Archivos PWA y metadatos (siempre públicos)
+    const isPWAFile = pathname === '/manifest.webmanifest' || pathname === '/sw.js';
+
     // Rutas de calendarios compartidos (requieren autenticación pero tienen validación propia)
     const isSharedCalendarRoute = pathname.startsWith('/shared/');
 
@@ -21,8 +24,8 @@ export function proxy(request: NextRequest) {
 
     const isLoggedIn = !!sessionToken;
 
-    // Si es una ruta pública o API de auth, permitir acceso
-    if (isPublicRoute || isAuthApi) {
+    // Si es una ruta pública, API de auth, o archivo PWA, permitir acceso
+    if (isPublicRoute || isAuthApi || isPWAFile) {
         // Si el usuario ya está autenticado y trata de acceder a login/register, redirigir a home
         if (isLoggedIn && (pathname === '/auth/signin' || pathname === '/auth/register')) {
             return NextResponse.redirect(new URL('/', request.url));
