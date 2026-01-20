@@ -65,10 +65,10 @@ export default function ConfiguracionPage() {
                     const registration = await navigator.serviceWorker.ready;
                     registration.showNotification('Calendario Disei Conelci', {
                         body: 'Las notificaciones están activas. Recibirás recordatorios de tus eventos.',
-                        icon: '/icon-192.png',
-                        badge: '/icon-192.png',
+                        icon: '/web-app-manifest-192x192.png',
+                        badge: '/web-app-manifest-192x192.png',
                         tag: 'test-notification',
-                    });
+                    } as any);
                 }
             } else {
                 toast.error('Permisos de notificación denegados');
@@ -104,11 +104,11 @@ export default function ConfiguracionPage() {
                 const registration = await navigator.serviceWorker.ready;
                 await registration.showNotification('Recordatorio de Evento', {
                     body: 'Esta es una notificación de prueba para tu evento de mañana',
-                    icon: '/icon-192.png',
-                    badge: '/icon-192.png',
+                    icon: '/web-app-manifest-192x192.png',
+                    badge: '/web-app-manifest-192x192.png',
                     tag: 'test-event',
                     requireInteraction: false,
-                });
+                } as any);
                 toast.success('Notificación de prueba enviada');
             }
         } catch (error) {

@@ -1,5 +1,5 @@
-const CACHE_NAME = 'calendario-v1';
-const urlsToCache = ['/', '/manifest.json'];
+const CACHE_NAME = 'calendario-v2';
+const urlsToCache = ['/'];
 
 // Instalación del Service Worker
 self.addEventListener('install', (event) => {
@@ -25,14 +25,21 @@ self.addEventListener('activate', (event) => {
 
 // Estrategia: Network First, fallback a Cache
 self.addEventListener('fetch', (event) => {
+    // Ignorar solicitudes que no sean http/https (como chrome-extension://)
+    if (!event.request.url.startsWith('http')) {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((response) => {
-                // Clonar la respuesta antes de guardarla
-                const responseToCache = response.clone();
-                caches.open(CACHE_NAME).then((cache) => {
-                    cache.put(event.request, responseToCache);
-                });
+                // Solo cachear respuestas exitosas
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const responseToCache = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, responseToCache);
+                    });
+                }
                 return response;
             })
             .catch(() => {

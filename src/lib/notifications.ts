@@ -105,14 +105,14 @@ export const checkAndSendNotifications = async () => {
                             notification.type === '1day'
                                 ? `Mañana: ${notification.title}`
                                 : `En 30 minutos: ${notification.title}`,
-                        icon: '/icon-192.png',
-                        badge: '/icon-192.png',
+                        icon: '/web-app-manifest-192x192.png',
+                        badge: '/web-app-manifest-192x192.png',
                         tag: notification.id,
                         requireInteraction: notification.type === '30min',
                         data: {
                             eventId: notification.eventId,
                         },
-                    });
+                    } as any);
                 }
                 notification.sent = true;
                 updated = true;
