@@ -1,7 +1,9 @@
 'use client';
 
 import { Calendar } from 'lucide-react';
+import { RiSettings3Line } from '@remixicon/react';
 import Link from 'next/link';
+import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/auth';
 import { ModeToggle } from '../toggle-mode';
 
@@ -22,6 +24,11 @@ const Navbar = ({ onSync, hasPendingSync }: NavbarProps) => {
                         <span>Calendario Disei</span>
                     </Link>
                     <div className="flex items-center justify-center gap-2">
+                        <Button variant="ghost" size="icon" asChild>
+                            <Link href="/configuracion" title="Configuración de notificaciones">
+                                <RiSettings3Line className="h-5 w-5" />
+                            </Link>
+                        </Button>
                         <ModeToggle />
                         <UserMenu onSync={onSync} hasPendingSync={hasPendingSync} />
                     </div>
