@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@/lib/auth';
 import dbConnect from '@/lib/mongodb';
 import Event from '@/models/Event';
+import Calendar from '@/models/Calendar';
 
 interface LocalEvent {
     id: string;
@@ -12,6 +13,20 @@ interface LocalEvent {
     allDay?: boolean;
     color?: string;
     location?: string;
+}
+
+// Función helper para obtener o crear calendario por defecto
+async function getDefaultCalendar(userId: string) {
+    let calendar = await Calendar.findOne({ userId, isDefault: true });
+    if (!calendar) {
+        calendar = await Calendar.create({
+            userId,
+            name: 'Mi Calendario',
+            color: 'sky',
+            isDefault: true,
+        });
+    }
+    return calendar;
 }
 
 // POST - Sincronizar eventos desde localStorage
@@ -30,6 +45,9 @@ export async function POST(request: NextRequest) {
         }
 
         await dbConnect();
+
+        // Obtener el calendario por defecto para los eventos sincronizados
+        const defaultCalendar = await getDefaultCalendar(session.user.id);
 
         // Obtener todos los eventos existentes del usuario
         const existingEvents = await Event.find({ userId: session.user.id });
@@ -63,6 +81,7 @@ export async function POST(request: NextRequest) {
                 // Crear el evento en la base de datos
                 const newEvent = await Event.create({
                     userId: session.user.id,
+                    calendarId: defaultCalendar._id,
                     title: localEvent.title || '(sin título)',
                     description: localEvent.description,
                     start: new Date(localEvent.start),
@@ -97,6 +116,7 @@ export async function POST(request: NextRequest) {
             color: event.color,
             location: event.location,
             localId: event.localId,
+            calendarId: event.calendarId?.toString(),
         }));
 
         return NextResponse.json({
