@@ -1,12 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
     const { pathname } = request.nextUrl;
 
     // Rutas públicas que no requieren autenticación
     const publicRoutes = ['/auth/signin', '/auth/register', '/auth/error'];
     const isPublicRoute = publicRoutes.includes(pathname);
+
+    // Rutas de calendarios compartidos (requieren autenticación pero tienen validación propia)
+    const isSharedCalendarRoute = pathname.startsWith('/shared/');
 
     // Rutas de API de autenticación (siempre públicas)
     const isAuthApi = pathname.startsWith('/api/auth');
@@ -29,6 +32,13 @@ export function middleware(request: NextRequest) {
 
     // Si no está autenticado y trata de acceder a una ruta protegida
     if (!isLoggedIn) {
+        // Para rutas de calendario compartido, redirigir con el callback correcto
+        if (isSharedCalendarRoute) {
+            const signInUrl = new URL('/auth/signin', request.url);
+            signInUrl.searchParams.set('callbackUrl', pathname);
+            return NextResponse.redirect(signInUrl);
+        }
+
         const signInUrl = new URL('/auth/signin', request.url);
         signInUrl.searchParams.set('callbackUrl', pathname);
         return NextResponse.redirect(signInUrl);
