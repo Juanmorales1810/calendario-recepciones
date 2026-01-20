@@ -60,11 +60,6 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
     const [startDateOpen, setStartDateOpen] = useState(false);
     const [endDateOpen, setEndDateOpen] = useState(false);
 
-    // Debug log to check what event is being passed
-    useEffect(() => {
-        console.log('EventDialog received event:', event);
-    }, [event]);
-
     const resetForm = useCallback(() => {
         setTitle('');
         setDescription('');
@@ -84,7 +79,10 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
         return `${hours}:${minutes.toString().padStart(2, '0')}`;
     }, []);
 
+    // Only update form state when dialog is open
     useEffect(() => {
+        if (!isOpen) return;
+
         if (event) {
             setTitle(event.title || '');
             setDescription(event.description || '');
@@ -99,11 +97,11 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
             setAllDay(event.allDay || false);
             setLocation(event.location || '');
             setColor((event.color as EventColor) || 'sky');
-            setError(null); // Reset error when opening dialog
+            setError(null);
         } else {
             resetForm();
         }
-    }, [event, formatTimeForInput, resetForm]);
+    }, [event, isOpen, formatTimeForInput, resetForm]);
 
     // Memoize time options so they're only calculated once
     const timeOptions = useMemo(() => {
