@@ -225,6 +225,11 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
         }
     }, [session?.user?.id]);
 
+    // Helper para detectar si es un shareToken (64 caracteres hex)
+    const isShareToken = useCallback((id: string | undefined): boolean => {
+        return !!id && id.length === 64 && /^[a-f0-9]+$/.test(id);
+    }, []);
+
     // Agregar evento
     const addEvent = useCallback(
         async (event: CalendarEvent, targetCalendarId?: string) => {
@@ -246,28 +251,57 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
 
             if (session?.user?.id) {
                 try {
-                    const response = await fetch('/api/events', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            ...eventWithId,
+                    const effectiveCalendarId = targetCalendarId || calendarId;
+                    const isSharedCalendar = isShareToken(effectiveCalendarId);
+
+                    let url = '/api/events';
+                    let body: Record<string, unknown> = {
+                        ...eventWithId,
+                        start: eventWithId.start.toISOString(),
+                        end: eventWithId.end.toISOString(),
+                        localId: eventWithId.id,
+                        calendarId: effectiveCalendarId,
+                    };
+
+                    // Si es un calendario compartido, usar el endpoint de shared
+                    if (isSharedCalendar) {
+                        url = `/api/shared/${effectiveCalendarId}`;
+                        // Para calendarios compartidos, no enviamos calendarId en el body
+                        // ya que el token ya identifica el calendario
+                        body = {
+                            title: eventWithId.title,
+                            description: eventWithId.description,
                             start: eventWithId.start.toISOString(),
                             end: eventWithId.end.toISOString(),
-                            localId: eventWithId.id,
-                            calendarId: targetCalendarId || calendarId,
-                        }),
+                            allDay: eventWithId.allDay,
+                            color: eventWithId.color,
+                            location: eventWithId.location,
+                        };
+                    }
+
+                    console.log('Creating event at:', url, 'isShared:', isSharedCalendar);
+
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
                     });
 
                     if (response.ok) {
                         const data = await response.json();
                         // Actualizar con el ID del servidor
+                        // Para calendarios compartidos, la respuesta es directa, no tiene .event
+                        const serverEvent = isSharedCalendar ? data : data.event;
                         setEvents((prev) => {
                             const updated = prev.map((e) =>
-                                e.id === eventWithId.id ? parseEvent(data.event) : e
+                                e.id === eventWithId.id ? parseEvent(serverEvent) : e
                             );
                             saveToLocalStorage(updated);
                             return updated;
                         });
+                    } else {
+                        const errorData = await response.json();
+                        console.error('Error al crear evento:', errorData.error);
                     }
                 } catch (err) {
                     console.error('Error guardando en servidor:', err);
@@ -276,7 +310,7 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
                 }
             }
         },
-        [session?.user?.id, calendarId]
+        [session?.user?.id, calendarId, isShareToken]
     );
 
     // Actualizar evento
@@ -295,17 +329,44 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
 
             if (session?.user?.id) {
                 try {
-                    const response = await fetch(`/api/events/${event.id}`, {
-                        method: 'PUT',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
+                    const isSharedCalendar = isShareToken(calendarId);
+
+                    let url: string;
+                    let body: Record<string, unknown>;
+
+                    if (isSharedCalendar) {
+                        // Para calendarios compartidos, usar el endpoint de shared con PUT
+                        url = `/api/shared/${calendarId}`;
+                        body = {
+                            eventId: event.id,
+                            title: event.title,
+                            description: event.description,
+                            start: event.start.toISOString(),
+                            end: event.end.toISOString(),
+                            allDay: event.allDay,
+                            color: event.color,
+                            location: event.location,
+                        };
+                    } else {
+                        url = `/api/events/${event.id}`;
+                        body = {
                             ...event,
                             start: event.start.toISOString(),
                             end: event.end.toISOString(),
-                        }),
+                        };
+                    }
+
+                    console.log('Updating event at:', url, 'isShared:', isSharedCalendar);
+
+                    const response = await fetch(url, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body),
                     });
 
                     if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Error al actualizar:', errorData.error);
                         throw new Error('Error al actualizar');
                     }
                 } catch (err) {
@@ -314,7 +375,7 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
                 }
             }
         },
-        [session?.user?.id]
+        [session?.user?.id, calendarId, isShareToken]
     );
 
     // Eliminar evento
@@ -332,11 +393,26 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
 
             if (session?.user?.id) {
                 try {
-                    const response = await fetch(`/api/events/${eventId}`, {
+                    const isSharedCalendar = isShareToken(calendarId);
+
+                    let url: string;
+
+                    if (isSharedCalendar) {
+                        // Para calendarios compartidos, usar el endpoint de shared con eventId como query param
+                        url = `/api/shared/${calendarId}?eventId=${eventId}`;
+                    } else {
+                        url = `/api/events/${eventId}`;
+                    }
+
+                    console.log('Deleting event at:', url, 'isShared:', isSharedCalendar);
+
+                    const response = await fetch(url, {
                         method: 'DELETE',
                     });
 
                     if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('Error al eliminar:', errorData.error);
                         throw new Error('Error al eliminar');
                     }
                 } catch (err) {
@@ -344,7 +420,7 @@ export function useEvents(options: UseEventsOptions = {}): UseEventsReturn {
                 }
             }
         },
-        [session?.user?.id]
+        [session?.user?.id, calendarId, isShareToken]
     );
 
     // Limpiar localStorage

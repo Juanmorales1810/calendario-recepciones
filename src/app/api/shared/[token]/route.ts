@@ -250,9 +250,11 @@ export async function POST(
         const eventData = await request.json();
 
         // Crear evento para el propietario del calendario
+        // Incluir el calendarId del calendario compartido
         const event = await Event.create({
             ...eventData,
             userId: share.ownerId,
+            calendarId: share.calendarId,
             start: new Date(eventData.start),
             end: new Date(eventData.end),
         });
