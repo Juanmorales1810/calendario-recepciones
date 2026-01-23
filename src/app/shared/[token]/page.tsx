@@ -1,12 +1,20 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { EventCalendar } from '@/components/calendar-event/event-calendar';
 import { CalendarEventSkeleton } from '@/components/calendar-event/calendar-event-skeleton';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { RiArrowLeftLine, RiLockLine, RiEditLine, RiRefreshLine } from '@remixicon/react';
+import {
+    RiArrowLeftLine,
+    RiLockLine,
+    RiEditLine,
+    RiRefreshLine,
+    RiFullscreenLine,
+    RiFullscreenExitLine,
+} from '@remixicon/react';
 import Link from 'next/link';
 import { useSharedCalendar } from '@/hooks/use-shared-calendar';
 
@@ -14,6 +22,8 @@ export default function SharedCalendarPage() {
     const params = useParams();
     const { data: session, status: sessionStatus } = useSession();
     const token = params.token as string;
+    const [isFullView, setIsFullView] = useState(false);
+    const [isFullscreen, setIsFullscreen] = useState(false);
 
     const {
         calendarInfo,
@@ -29,6 +39,39 @@ export default function SharedCalendarPage() {
         refreshInterval: 15000, // Actualizar cada 15 segundos
         revalidateOnFocus: true, // Actualizar cuando el usuario vuelve a la ventana
     });
+
+    // Manejar el modo de pantalla completa
+    useEffect(() => {
+        const handleFullscreenChange = () => {
+            const isInFullscreen = !!document.fullscreenElement;
+            setIsFullscreen(isInFullscreen);
+            setIsFullView(isInFullscreen);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+        };
+    }, []);
+
+    const toggleFullscreen = async () => {
+        if (!document.fullscreenElement) {
+            try {
+                setIsFullView(true);
+                await document.documentElement.requestFullscreen();
+            } catch (err) {
+                console.error('Error al entrar en pantalla completa:', err);
+                setIsFullView(false);
+            }
+        } else {
+            try {
+                await document.exitFullscreen();
+                setIsFullView(false);
+            } catch (err) {
+                console.error('Error al salir de pantalla completa:', err);
+            }
+        }
+    };
 
     if (sessionStatus === 'loading' || isLoading) {
         return (
@@ -78,9 +121,10 @@ export default function SharedCalendarPage() {
     const canEdit = calendarInfo?.permission === 'write';
 
     return (
-        <div className="container mx-auto py-8">
+        <div className={isFullView ? 'flex h-screen flex-col' : 'container mx-auto py-8'}>
             {/* Header */}
-            <div className="mb-6 flex items-center justify-between">
+            <div
+                className={`flex items-center justify-between ${isFullView ? 'border-b p-2' : 'mb-6'}`}>
                 <div className="flex items-center gap-4">
                     <Button variant="ghost" size="icon" asChild>
                         <Link href="/">
@@ -95,6 +139,17 @@ export default function SharedCalendarPage() {
                     </div>
                 </div>
                 <div className="flex items-center gap-2">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={toggleFullscreen}
+                        title={isFullscreen ? 'Salir de pantalla completa' : 'Pantalla completa'}>
+                        {isFullscreen ? (
+                            <RiFullscreenExitLine className="h-4 w-4" />
+                        ) : (
+                            <RiFullscreenLine className="h-4 w-4" />
+                        )}
+                    </Button>
                     <Button
                         variant="ghost"
                         size="icon"
@@ -125,12 +180,16 @@ export default function SharedCalendarPage() {
             </div>
 
             {/* Calendario */}
-            <EventCalendar
-                events={events}
-                onEventAdd={canEdit ? addEvent : undefined}
-                onEventUpdate={canEdit ? updateEvent : undefined}
-                onEventDelete={canEdit ? deleteEvent : undefined}
-            />
+            <div className={isFullView ? 'flex-1' : ''}>
+                <EventCalendar
+                    events={events}
+                    onEventAdd={canEdit ? addEvent : undefined}
+                    onEventUpdate={canEdit ? updateEvent : undefined}
+                    onEventDelete={canEdit ? deleteEvent : undefined}
+                    className={isFullView ? 'max-h-[calc(100vh-4rem)]' : ''}
+                    fullscreen={isFullView}
+                />
+            </div>
         </div>
     );
 }

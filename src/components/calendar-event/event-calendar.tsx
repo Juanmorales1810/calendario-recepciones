@@ -84,6 +84,7 @@ export interface EventCalendarProps {
     className?: string;
     initialView?: CalendarView;
     calendarSelector?: React.ReactNode;
+    fullscreen?: boolean;
 }
 
 export function EventCalendar({
@@ -94,6 +95,7 @@ export function EventCalendar({
     className,
     initialView = 'month',
     calendarSelector,
+    fullscreen = false,
 }: EventCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<CalendarView>(initialView);
@@ -289,7 +291,11 @@ export function EventCalendar({
 
     return (
         <div
-            className="bg-background flex flex-col rounded-lg border shadow-xl has-data-[slot=month-view]:flex-1"
+            className={cn(
+                'bg-background flex flex-col rounded-lg border shadow-xl has-data-[slot=month-view]:flex-1',
+                fullscreen && 'h-full max-h-full',
+                className
+            )}
             style={
                 {
                     '--event-gap': `${EventGap}px`,
@@ -391,7 +397,7 @@ export function EventCalendar({
                     </div>
                 </div>
 
-                <div className="flex flex-1 flex-col">
+                <div className={cn('flex flex-1 flex-col', fullscreen && 'overflow-auto')}>
                     {view === 'month' && (
                         <MonthView
                             currentDate={currentDate}
