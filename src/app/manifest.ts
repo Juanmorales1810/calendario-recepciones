@@ -10,13 +10,13 @@ export default function manifest(): MetadataRoute.Manifest {
         scope: '/',
         display: 'standalone',
         background_color: '#ffffff',
-        theme_color: '#eff2f9',
+        theme_color: '#0152cb',
         orientation: 'portrait-primary',
         icons: [
             {
-                src: '/web-app-manifest-192x192.png',
+                src: '/icon-192.svg',
                 sizes: '192x192',
-                type: 'image/png',
+                type: 'image/svg+xml',
                 purpose: 'any',
             },
             {
@@ -26,9 +26,9 @@ export default function manifest(): MetadataRoute.Manifest {
                 purpose: 'maskable',
             },
             {
-                src: '/web-app-manifest-512x512.png',
+                src: '/icon-512.svg',
                 sizes: '512x512',
-                type: 'image/png',
+                type: 'image/svg+xml',
                 purpose: 'any',
             },
             {
