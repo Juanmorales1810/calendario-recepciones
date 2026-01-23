@@ -1,9 +1,63 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <rect width="512" height="512" fill="#0ea5e9" rx="64"/>
-  <g fill="#ffffff">
-    <rect x="100" y="160" width="312" height="40" rx="8"/>
-    <rect x="100" y="230" width="220" height="32" rx="6"/>
-    <rect x="100" y="295" width="260" height="32" rx="6"/>
-    <rect x="100" y="360" width="190" height="32" rx="6"/>
+  <defs>
+    <linearGradient id="bgGrad512" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#0ea5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0284c7;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="calGrad512" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f0f9ff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="shadow512">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="6"/>
+      <feOffset dx="0" dy="6" result="offsetblur"/>
+      <feComponentTransfer>
+        <feFuncA type="linear" slope="0.4"/>
+      </feComponentTransfer>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Fondo con gradiente -->
+  <rect width="512" height="512" fill="url(#bgGrad512)" rx="64"/>
+  <ellipse cx="256" cy="120" rx="220" ry="80" fill="#ffffff" opacity="0.12"/>
+  
+  <!-- Calendario con efecto 3D -->
+  <g filter="url(#shadow512)">
+    <!-- Cuerpo del calendario -->
+    <rect x="76" y="120" width="360" height="360" rx="32" fill="url(#calGrad512)"/>
+    <rect x="76" y="120" width="360" height="360" rx="32" fill="none" stroke="#cbd5e1" stroke-width="4"/>
+    
+    <!-- Encabezado del calendario -->
+    <rect x="76" y="120" width="360" height="80" rx="32" fill="#0ea5e9" opacity="0.15"/>
+    
+    <!-- Ganchos superiores -->
+    <rect x="156" y="80" width="24" height="80" rx="12" fill="#0ea5e9"/>
+    <rect x="156" y="80" width="24" height="20" rx="12" fill="#ffffff" opacity="0.3"/>
+    <rect x="332" y="80" width="24" height="80" rx="12" fill="#0ea5e9"/>
+    <rect x="332" y="80" width="24" height="20" rx="12" fill="#ffffff" opacity="0.3"/>
+    
+    <!-- Línea divisoria -->
+    <rect x="116" y="200" width="280" height="6" rx="3" fill="#0ea5e9" opacity="0.3"/>
+    
+    <!-- Eventos/Citas (líneas y puntos) -->
+    <g fill="#0ea5e9" opacity="0.7">
+      <!-- Fila 1 -->
+      <circle cx="136" cy="260" r="10"/>
+      <rect x="170" y="250" width="200" height="20" rx="10"/>
+      
+      <!-- Fila 2 -->
+      <rect x="136" y="310" width="150" height="18" rx="9"/>
+      
+      <!-- Fila 3 -->
+      <circle cx="136" cy="370" r="10"/>
+      <rect x="170" y="360" width="180" height="20" rx="10"/>
+      
+      <!-- Fila 4 -->
+      <rect x="136" y="420" width="120" height="18" rx="9"/>
+    </g>
   </g>
 </svg>
