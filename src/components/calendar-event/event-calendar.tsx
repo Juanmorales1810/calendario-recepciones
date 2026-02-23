@@ -78,13 +78,15 @@ import {
 
 export interface EventCalendarProps {
     events?: CalendarEvent[];
-    onEventAdd?: (event: CalendarEvent) => void;
-    onEventUpdate?: (event: CalendarEvent) => void;
+    onEventAdd?: (event: CalendarEvent) => Promise<void> | void;
+    onEventUpdate?: (event: CalendarEvent) => Promise<void> | void;
     onEventDelete?: (eventId: string) => void;
     className?: string;
     initialView?: CalendarView;
     calendarSelector?: React.ReactNode;
     fullscreen?: boolean;
+    readOnly?: boolean;
+    canEditEvent?: (event: CalendarEvent) => boolean;
 }
 
 export function EventCalendar({
@@ -96,6 +98,8 @@ export function EventCalendar({
     initialView = 'month',
     calendarSelector,
     fullscreen = false,
+    readOnly = false,
+    canEditEvent,
 }: EventCalendarProps) {
     const [currentDate, setCurrentDate] = useState(new Date());
     const [view, setView] = useState<CalendarView>(initialView);
@@ -201,27 +205,31 @@ export function EventCalendar({
         setIsEventDialogOpen(true);
     };
 
-    const handleEventSave = (event: CalendarEvent) => {
-        if (event.id) {
-            onEventUpdate?.(event);
-            // Show toast notification when an event is updated
-            toast(`Evento "${event.title}" actualizado`, {
-                description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
-                position: 'bottom-left',
-            });
-        } else {
-            onEventAdd?.({
-                ...event,
-                id: Math.random().toString(36).substring(2, 11),
-            });
-            // Show toast notification when an event is added
-            toast(`Evento "${event.title}" agregado`, {
-                description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
-                position: 'bottom-left',
-            });
+    const handleEventSave = async (event: CalendarEvent) => {
+        try {
+            if (event.id) {
+                await onEventUpdate?.(event);
+                // Show toast notification when an event is updated
+                toast(`Evento "${event.title}" actualizado`, {
+                    description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
+                    position: 'bottom-left',
+                });
+            } else {
+                await onEventAdd?.({
+                    ...event,
+                    id: Math.random().toString(36).substring(2, 11),
+                });
+                // Show toast notification when an event is added
+                toast(`Evento "${event.title}" agregado`, {
+                    description: format(new Date(event.start), 'MMM d, yyyy', { locale: es }),
+                    position: 'bottom-left',
+                });
+            }
+            setIsEventDialogOpen(false);
+            setSelectedEvent(null);
+        } catch {
+            // Error already handled and displayed by the hook
         }
-        setIsEventDialogOpen(false);
-        setSelectedEvent(null);
     };
 
     const handleEventDelete = (eventId: string) => {
@@ -240,6 +248,8 @@ export function EventCalendar({
     };
 
     const handleEventUpdate = (updatedEvent: CalendarEvent) => {
+        if (canEditEvent && !canEditEvent(updatedEvent)) return;
+
         onEventUpdate?.(updatedEvent);
 
         // Show toast notification when an event is updated via drag and drop
@@ -303,7 +313,9 @@ export function EventCalendar({
                     '--week-cells-height': `${WeekCellsHeight}px`,
                 } as React.CSSProperties
             }>
-            <CalendarDndProvider onEventUpdate={handleEventUpdate}>
+            <CalendarDndProvider
+                onEventUpdate={readOnly ? undefined : handleEventUpdate}
+                canEditEvent={canEditEvent}>
                 <div className={cn('flex items-center justify-between p-2 sm:p-4', className)}>
                     <div className="flex items-center gap-1 sm:gap-4">
                         <Button
@@ -380,20 +392,22 @@ export function EventCalendar({
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                        <Button
-                            className="max-[479px]:aspect-square max-[479px]:p-0!"
-                            onClick={() => {
-                                setSelectedEvent(null); // Ensure we're creating a new event
-                                setIsEventDialogOpen(true);
-                            }}
-                            size="sm">
-                            <PlusIcon
-                                aria-hidden="true"
-                                className="opacity-60 sm:-ms-1"
-                                size={16}
-                            />
-                            <span className="max-sm:sr-only">Nuevo evento</span>
-                        </Button>
+                        {!readOnly && (
+                            <Button
+                                className="max-[479px]:aspect-square max-[479px]:p-0!"
+                                onClick={() => {
+                                    setSelectedEvent(null); // Ensure we're creating a new event
+                                    setIsEventDialogOpen(true);
+                                }}
+                                size="sm">
+                                <PlusIcon
+                                    aria-hidden="true"
+                                    className="opacity-60 sm:-ms-1"
+                                    size={16}
+                                />
+                                <span className="max-sm:sr-only">Nuevo evento</span>
+                            </Button>
+                        )}
                     </div>
                 </div>
 
@@ -402,7 +416,7 @@ export function EventCalendar({
                         <MonthView
                             currentDate={currentDate}
                             events={events}
-                            onEventCreate={handleEventCreate}
+                            onEventCreate={readOnly ? undefined : handleEventCreate}
                             onEventSelect={handleEventSelect}
                         />
                     )}
@@ -410,7 +424,7 @@ export function EventCalendar({
                         <WeekView
                             currentDate={currentDate}
                             events={events}
-                            onEventCreate={handleEventCreate}
+                            onEventCreate={readOnly ? undefined : handleEventCreate}
                             onEventSelect={handleEventSelect}
                         />
                     )}
@@ -418,7 +432,7 @@ export function EventCalendar({
                         <DayView
                             currentDate={currentDate}
                             events={events}
-                            onEventCreate={handleEventCreate}
+                            onEventCreate={readOnly ? undefined : handleEventCreate}
                             onEventSelect={handleEventSelect}
                         />
                     )}
@@ -440,6 +454,13 @@ export function EventCalendar({
                     }}
                     onDelete={handleEventDelete}
                     onSave={handleEventSave}
+                    readOnly={
+                        readOnly
+                            ? true
+                            : selectedEvent && canEditEvent
+                              ? !canEditEvent(selectedEvent)
+                              : false
+                    }
                 />
             </CalendarDndProvider>
         </div>

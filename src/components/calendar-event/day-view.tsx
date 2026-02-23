@@ -31,7 +31,7 @@ interface DayViewProps {
     currentDate: Date;
     events: CalendarEvent[];
     onEventSelect: (event: CalendarEvent) => void;
-    onEventCreate: (startTime: Date) => void;
+    onEventCreate?: (startTime: Date) => void;
 }
 
 interface PositionedEvent {
@@ -295,7 +295,7 @@ export function DayView({ currentDate, events, onEventSelect, onEventCreate }: D
                                                 const startTime = new Date(currentDate);
                                                 startTime.setHours(hourValue);
                                                 startTime.setMinutes(quarter * 15);
-                                                onEventCreate(startTime);
+                                                onEventCreate?.(startTime);
                                             }}
                                             time={quarterHourTime}
                                         />

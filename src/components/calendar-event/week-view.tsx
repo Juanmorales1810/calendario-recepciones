@@ -36,7 +36,7 @@ interface WeekViewProps {
     currentDate: Date;
     events: CalendarEvent[];
     onEventSelect: (event: CalendarEvent) => void;
-    onEventCreate: (startTime: Date) => void;
+    onEventCreate?: (startTime: Date) => void;
 }
 
 interface PositionedEvent {
@@ -376,7 +376,7 @@ export function WeekView({ currentDate, events, onEventSelect, onEventCreate }: 
                                                     const startTime = new Date(day);
                                                     startTime.setHours(hourValue);
                                                     startTime.setMinutes(quarter * 15);
-                                                    onEventCreate(startTime);
+                                                    onEventCreate?.(startTime);
                                                 }}
                                                 time={quarterHourTime}
                                             />

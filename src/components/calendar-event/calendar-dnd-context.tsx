@@ -35,6 +35,7 @@ type CalendarDndContextType = {
             isLastDay?: boolean;
         };
     } | null;
+    canEditEvent?: (event: CalendarEvent) => boolean;
 };
 
 // Create the context
@@ -55,10 +56,15 @@ export const useCalendarDnd = () => useContext(CalendarDndContext);
 // Props for the provider
 interface CalendarDndProviderProps {
     children: ReactNode;
-    onEventUpdate: (event: CalendarEvent) => void;
+    onEventUpdate?: (event: CalendarEvent) => void;
+    canEditEvent?: (event: CalendarEvent) => boolean;
 }
 
-export function CalendarDndProvider({ children, onEventUpdate }: CalendarDndProviderProps) {
+export function CalendarDndProvider({
+    children,
+    onEventUpdate,
+    canEditEvent,
+}: CalendarDndProviderProps) {
     const [activeEvent, setActiveEvent] = useState<CalendarEvent | null>(null);
     const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
     const [activeView, setActiveView] = useState<'month' | 'week' | 'day' | null>(null);
@@ -290,7 +296,7 @@ export function CalendarDndProvider({ children, onEventUpdate }: CalendarDndProv
 
             if (hasStartTimeChanged) {
                 // Update the event only if the time has changed
-                onEventUpdate({
+                onEventUpdate?.({
                     ...calendarEvent,
                     end: newEnd,
                     start: newStart,
@@ -323,6 +329,7 @@ export function CalendarDndProvider({ children, onEventUpdate }: CalendarDndProv
                     activeEvent,
                     activeId,
                     activeView,
+                    canEditEvent,
                     currentTime,
                     dragHandlePosition,
                     eventHeight,

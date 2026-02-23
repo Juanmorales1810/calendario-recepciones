@@ -44,9 +44,17 @@ interface EventDialogProps {
     onClose: () => void;
     onSave: (event: CalendarEvent) => void;
     onDelete: (eventId: string) => void;
+    readOnly?: boolean;
 }
 
-export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventDialogProps) {
+export function EventDialog({
+    event,
+    isOpen,
+    onClose,
+    onSave,
+    onDelete,
+    readOnly = false,
+}: EventDialogProps) {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [startDate, setStartDate] = useState<Date>(new Date());
@@ -221,7 +229,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
         <Dialog onOpenChange={(open) => !open && onClose()} open={isOpen}>
             <DialogContent className="sm:max-w-[425px]">
                 <DialogHeader>
-                    <DialogTitle>{event?.id ? 'Editar Evento' : 'Crear Evento'}</DialogTitle>
+                    <DialogTitle>
+                        {readOnly ? 'Ver Reserva' : event?.id ? 'Editar Evento' : 'Crear Evento'}
+                    </DialogTitle>
                     <DialogDescription className="sr-only">
                         {event?.id
                             ? 'Editar un evento existente en tu calendario'
@@ -240,6 +250,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             id="title"
                             onChange={(e) => setTitle(e.target.value)}
                             value={title}
+                            disabled={readOnly}
                         />
                     </div>
 
@@ -250,13 +261,16 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             onChange={(e) => setDescription(e.target.value)}
                             rows={3}
                             value={description}
+                            disabled={readOnly}
                         />
                     </div>
 
                     <div className="flex gap-4">
                         <div className="flex-1 *:not-first:mt-1.5">
                             <Label htmlFor="start-date">Fecha de inicio</Label>
-                            <Popover onOpenChange={setStartDateOpen} open={startDateOpen}>
+                            <Popover
+                                onOpenChange={readOnly ? undefined : setStartDateOpen}
+                                open={readOnly ? false : startDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
                                         className={cn(
@@ -264,7 +278,8 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                                             !startDate && 'text-muted-foreground'
                                         )}
                                         id="start-date"
-                                        variant={'outline'}>
+                                        variant={'outline'}
+                                        disabled={readOnly}>
                                         <span
                                             className={cn(
                                                 'truncate',
@@ -305,7 +320,10 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                         {!allDay && (
                             <div className="min-w-28 *:not-first:mt-1.5">
                                 <Label htmlFor="start-time">Hora de inicio</Label>
-                                <Select onValueChange={setStartTime} value={startTime}>
+                                <Select
+                                    onValueChange={setStartTime}
+                                    value={startTime}
+                                    disabled={readOnly}>
                                     <SelectTrigger id="start-time">
                                         <SelectValue placeholder="Seleccionar hora" />
                                     </SelectTrigger>
@@ -324,7 +342,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     <div className="flex gap-4">
                         <div className="flex-1 *:not-first:mt-1.5">
                             <Label htmlFor="end-date">Fecha de fin</Label>
-                            <Popover onOpenChange={setEndDateOpen} open={endDateOpen}>
+                            <Popover
+                                onOpenChange={readOnly ? undefined : setEndDateOpen}
+                                open={readOnly ? false : endDateOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
                                         className={cn(
@@ -332,7 +352,8 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                                             !endDate && 'text-muted-foreground'
                                         )}
                                         id="end-date"
-                                        variant={'outline'}>
+                                        variant={'outline'}
+                                        disabled={readOnly}>
                                         <span
                                             className={cn(
                                                 'truncate',
@@ -370,7 +391,10 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                         {!allDay && (
                             <div className="min-w-28 *:not-first:mt-1.5">
                                 <Label htmlFor="end-time">Hora de fin</Label>
-                                <Select onValueChange={setEndTime} value={endTime}>
+                                <Select
+                                    onValueChange={setEndTime}
+                                    value={endTime}
+                                    disabled={readOnly}>
                                     <SelectTrigger id="end-time">
                                         <SelectValue placeholder="Seleccionar hora" />
                                     </SelectTrigger>
@@ -391,6 +415,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             checked={allDay}
                             id="all-day"
                             onCheckedChange={(checked) => setAllDay(checked === true)}
+                            disabled={readOnly}
                         />
                         <Label htmlFor="all-day">Todo el día</Label>
                     </div>
@@ -401,6 +426,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             id="location"
                             onChange={(e) => setLocation(e.target.value)}
                             value={location}
+                            disabled={readOnly}
                         />
                     </div>
                     <fieldset className="space-y-4">
@@ -411,7 +437,8 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                             className="flex gap-1.5"
                             defaultValue={colorOptions[0]?.value}
                             onValueChange={(value: EventColor) => setColor(value)}
-                            value={color}>
+                            value={color}
+                            disabled={readOnly}>
                             {colorOptions.map((colorOption) => (
                                 <RadioGroupItem
                                     aria-label={colorOption.label}
@@ -429,7 +456,7 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     </fieldset>
                 </div>
                 <DialogFooter className="flex-row sm:justify-between">
-                    {event?.id && (
+                    {!readOnly && event?.id && (
                         <Button
                             aria-label="Delete event"
                             onClick={handleDelete}
@@ -440,9 +467,9 @@ export function EventDialog({ event, isOpen, onClose, onSave, onDelete }: EventD
                     )}
                     <div className="flex flex-1 justify-end gap-2">
                         <Button onClick={onClose} variant="outline">
-                            Cancelar
+                            {readOnly ? 'Cerrar' : 'Cancelar'}
                         </Button>
-                        <Button onClick={handleSave}>Guardar</Button>
+                        {!readOnly && <Button onClick={handleSave}>Guardar</Button>}
                     </div>
                 </DialogFooter>
             </DialogContent>

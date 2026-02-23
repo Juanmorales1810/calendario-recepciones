@@ -36,7 +36,7 @@ export function DraggableEvent({
     isLastDay = true,
     'aria-hidden': ariaHidden,
 }: DraggableEventProps) {
-    const { activeId } = useCalendarDnd();
+    const { activeId, canEditEvent } = useCalendarDnd();
     const elementRef = useRef<HTMLDivElement>(null);
     const [dragHandlePosition, setDragHandlePosition] = useState<{
         x: number;
@@ -49,6 +49,8 @@ export function DraggableEvent({
     const isMultiDayEvent =
         isMultiDay || event.allDay || differenceInDays(eventEnd, eventStart) >= 1;
 
+    const isDragDisabled = canEditEvent ? !canEditEvent(event) : false;
+
     const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
         data: {
             dragHandlePosition,
@@ -60,6 +62,7 @@ export function DraggableEvent({
             multiDayWidth: multiDayWidth,
             view,
         },
+        disabled: isDragDisabled,
         id: `${event.id}-${view}`,
     });
 
