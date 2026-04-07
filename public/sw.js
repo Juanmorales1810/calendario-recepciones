@@ -1,76 +1,144 @@
-const CACHE_NAME = 'calendario-v2';
-const urlsToCache = ['/'];
+// ━━━ Cache versioning ━━━
+const CACHE_VERSION = 'v3';
+const PRECACHE_NAME = `precache-${CACHE_VERSION}`;
+const RUNTIME_NAME = `runtime-${CACHE_VERSION}`;
 
-// Instalación del Service Worker
+// ━━━ Precache list ━━━
+const PRECACHE_URLS = ['/', '/offline'];
+
+// ━━━ Install: precache essential assets ━━━
 self.addEventListener('install', (event) => {
-    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(urlsToCache)));
-    self.skipWaiting();
+    event.waitUntil(caches.open(PRECACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
+    // No llamar skipWaiting() aquí — se maneja via mensaje del cliente
 });
 
-// Activación del Service Worker
+// ━━━ Activate: limpiar caches antiguos ━━━
 self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (cacheName !== CACHE_NAME) {
-                        return caches.delete(cacheName);
-                    }
-                })
-            );
-        })
+        caches
+            .keys()
+            .then((cacheNames) =>
+                Promise.all(
+                    cacheNames
+                        .filter((name) => name !== PRECACHE_NAME && name !== RUNTIME_NAME)
+                        .map((name) => caches.delete(name))
+                )
+            )
     );
     self.clients.claim();
 });
 
-// Estrategia: Network First, fallback a Cache
+// ━━━ Escuchar mensaje SKIP_WAITING del cliente ━━━
+self.addEventListener('message', (event) => {
+    if (event.data?.type === 'SKIP_WAITING') {
+        self.skipWaiting();
+    }
+});
+
+// ━━━ Fetch: estrategias de cache por tipo de recurso ━━━
 self.addEventListener('fetch', (event) => {
-    // Ignorar solicitudes que no sean http/https (como chrome-extension://)
-    if (!event.request.url.startsWith('http')) {
+    const { request } = event;
+    const url = new URL(request.url);
+
+    // Nunca cachear solicitudes que no sean GET
+    if (request.method !== 'GET') return;
+
+    // Ignorar solicitudes cross-origin
+    if (url.origin !== self.location.origin) return;
+
+    // Cache First — assets estáticos con hash (inmutables)
+    if (url.pathname.startsWith('/_next/static/')) {
+        event.respondWith(cacheFirst(request));
         return;
     }
 
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                // Solo cachear respuestas exitosas
-                if (response && response.status === 200 && response.type === 'basic') {
-                    const responseToCache = response.clone();
-                    caches.open(CACHE_NAME).then((cache) => {
-                        cache.put(event.request, responseToCache);
-                    });
-                }
-                return response;
-            })
-            .catch(() => {
-                // Si falla la red, intentar obtener desde cache
-                return caches.match(event.request);
-            })
-    );
+    // Network First — navegación HTML con fallback offline
+    if (request.mode === 'navigate') {
+        event.respondWith(networkFirstWithOfflineFallback(request));
+        return;
+    }
+
+    // Stale-While-Revalidate — imágenes, fuentes y assets públicos
+    if (url.pathname.match(/\.(png|jpg|jpeg|svg|gif|webp|ico|woff2?|ttf|otf)$/)) {
+        event.respondWith(staleWhileRevalidate(request));
+        return;
+    }
+
+    // Default: network only (API routes, etc.)
 });
 
-// Manejo de notificaciones
-self.addEventListener('notificationclick', (event) => {
-    event.notification.close();
+// ━━━ Implementación de estrategias ━━━
 
-    // Abrir la aplicación cuando se hace clic en la notificación
+async function cacheFirst(request) {
+    const cached = await caches.match(request);
+    if (cached) return cached;
+
+    const response = await fetch(request);
+    if (response.ok) {
+        const cache = await caches.open(RUNTIME_NAME);
+        cache.put(request, response.clone());
+    }
+    return response;
+}
+
+async function networkFirstWithOfflineFallback(request) {
+    try {
+        const response = await fetch(request);
+        if (response.ok) {
+            const cache = await caches.open(RUNTIME_NAME);
+            cache.put(request, response.clone());
+        }
+        return response;
+    } catch {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+        return caches.match('/offline') || new Response('Offline', { status: 503 });
+    }
+}
+
+async function staleWhileRevalidate(request) {
+    const cache = await caches.open(RUNTIME_NAME);
+    const cached = await cache.match(request);
+
+    const fetchPromise = fetch(request)
+        .then((response) => {
+            if (response.ok) {
+                cache.put(request, response.clone());
+            }
+            return response;
+        })
+        .catch(() => cached);
+
+    return cached || fetchPromise;
+}
+
+// ━━━ Push notification handler ━━━
+self.addEventListener('push', (event) => {
+    if (!event.data) return;
+
+    const { title, body, icon, badge, url } = event.data.json();
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-            // Si ya hay una ventana abierta, enfocarla
-            for (const client of clientList) {
-                if (client.url === '/' && 'focus' in client) {
-                    return client.focus();
-                }
-            }
-            // Si no, abrir una nueva ventana
-            if (clients.openWindow) {
-                return clients.openWindow('/');
-            }
+        self.registration.showNotification(title, {
+            body,
+            icon: icon || '/icon-192.svg',
+            badge: badge || '/icon-192.svg',
+            data: { url: url || '/' },
         })
     );
 });
 
-// Cerrar notificación
-self.addEventListener('notificationclose', (event) => {
-    console.log('Notificación cerrada:', event.notification.tag);
+// Manejo de clic en notificaciones
+self.addEventListener('notificationclick', (event) => {
+    event.notification.close();
+    const targetUrl = event.notification.data?.url || '/';
+    event.waitUntil(
+        self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+            for (const client of clientList) {
+                if (client.url === targetUrl && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            return self.clients.openWindow(targetUrl);
+        })
+    );
 });
