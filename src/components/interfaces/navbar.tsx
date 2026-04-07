@@ -1,6 +1,4 @@
 import { Cog, FileTextIcon, HomeIcon, UsersIcon } from 'lucide-react';
-import { useId } from 'react';
-
 import Logo from '@/components/logo';
 import ThemeToggle from '@/components/theme-toggle';
 import UserMenu from '@/components/user-menu';
@@ -24,8 +22,6 @@ const navigationLinks = [
 ];
 
 export default function Navbar() {
-    const id = useId();
-
     return (
         <header className="border-b px-4 md:px-6">
             <div className="flex h-16 items-center justify-between gap-4">
