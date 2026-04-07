@@ -8,9 +8,14 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { ModeToggle } from '@/components/toggle-mode';
 
-function PublicoContent() {
+export default function PublicoPage() {
     return (
-        <>
+        <Suspense
+            fallback={
+                <div className="flex min-h-screen items-center justify-center">
+                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
+                </div>
+            }>
             <header className="bg-background border-b">
                 <div className="container mx-auto h-16">
                     <div className="flex h-full items-center justify-between">
@@ -37,19 +42,6 @@ function PublicoContent() {
                 </div>
                 <ReservationCalendarView readOnly initialView="agenda" />
             </div>
-        </>
-    );
-}
-
-export default function PublicoPage() {
-    return (
-        <Suspense
-            fallback={
-                <div className="flex min-h-screen items-center justify-center">
-                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
-                </div>
-            }>
-            <PublicoContent />
         </Suspense>
     );
 }
