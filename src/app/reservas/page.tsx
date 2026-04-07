@@ -1,17 +1,20 @@
 'use client';
 
 import { Suspense } from 'react';
-import { Navbar } from '@/components/interfaces/navbar';
 import ReservationCalendarView from '@/components/reservation-calendar-view';
 import { RiLoader4Line } from '@remixicon/react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Eye } from 'lucide-react';
 
-function ReservasContent() {
+export default function ReservasPage() {
     return (
-        <>
-            <Navbar />
+        <Suspense
+            fallback={
+                <div className="flex min-h-screen items-center justify-center">
+                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
+                </div>
+            }>
             <div className="mx-auto max-w-7xl px-4 py-8">
                 <div className="mb-4 flex items-center justify-between">
                     <div>
@@ -29,19 +32,6 @@ function ReservasContent() {
                 </div>
                 <ReservationCalendarView />
             </div>
-        </>
-    );
-}
-
-export default function ReservasPage() {
-    return (
-        <Suspense
-            fallback={
-                <div className="flex min-h-screen items-center justify-center">
-                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
-                </div>
-            }>
-            <ReservasContent />
         </Suspense>
     );
 }

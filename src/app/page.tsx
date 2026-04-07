@@ -3,12 +3,11 @@
 import { useState, useEffect, Suspense } from 'react';
 import { useSession } from 'next-auth/react';
 import CalendarEvent from '@/components/calendar-event';
-import { Navbar } from '@/components/interfaces/navbar';
 import { useEvents } from '@/hooks/use-events';
 import { SyncBanner } from '@/components/sync-banner';
 import { RiLoader4Line } from '@remixicon/react';
 
-function PageContent() {
+export default function Page() {
     const { data: session, status } = useSession();
     const { syncFromLocalStorage, syncStatus } = useEvents();
     const [showSyncBanner, setShowSyncBanner] = useState(false);
@@ -43,9 +42,12 @@ function PageContent() {
     };
 
     return (
-        <>
-            <Navbar onSync={syncFromLocalStorage} hasPendingSync={syncStatus.pendingSync} />
-
+        <Suspense
+            fallback={
+                <div className="flex min-h-screen items-center justify-center">
+                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
+                </div>
+            }>
             {showSyncBanner && <SyncBanner onSync={handleSync} onDismiss={dismissBanner} />}
 
             <div className="mx-auto max-w-7xl px-4 py-8">
@@ -60,19 +62,6 @@ function PageContent() {
 
                 <CalendarEvent />
             </div>
-        </>
-    );
-}
-
-export default function Page() {
-    return (
-        <Suspense
-            fallback={
-                <div className="flex min-h-screen items-center justify-center">
-                    <RiLoader4Line className="text-muted-foreground h-8 w-8 animate-spin" />
-                </div>
-            }>
-            <PageContent />
         </Suspense>
     );
 }
