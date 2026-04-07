@@ -1,0 +1,39 @@
+'use client';
+
+import { MoonIcon, SunIcon } from 'lucide-react';
+import { useTheme } from 'next-themes';
+import { useEffect, useState } from 'react';
+
+import { Toggle } from '@/components/ui/toggle';
+
+export default function ThemeToggle() {
+    const { resolvedTheme, setTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    const isDark = mounted && resolvedTheme === 'dark';
+
+    return (
+        <Toggle
+            aria-label={`Cambiar a modo ${isDark ? 'claro' : 'oscuro'}`}
+            className="group text-muted-foreground data-[state=on]:text-muted-foreground data-[state=on]:hover:bg-muted data-[state=on]:hover:text-foreground size-8 rounded-full border-none shadow-none data-[state=on]:bg-transparent"
+            onPressedChange={() => setTheme(isDark ? 'light' : 'dark')}
+            pressed={isDark}
+            suppressHydrationWarning
+            variant="outline">
+            <MoonIcon
+                aria-hidden="true"
+                className="shrink-0 scale-0 opacity-0 transition-all group-data-[state=on]:scale-100 group-data-[state=on]:opacity-100"
+                size={16}
+            />
+            <SunIcon
+                aria-hidden="true"
+                className="absolute shrink-0 scale-100 opacity-100 transition-all group-data-[state=on]:scale-0 group-data-[state=on]:opacity-0"
+                size={16}
+            />
+        </Toggle>
+    );
+}
