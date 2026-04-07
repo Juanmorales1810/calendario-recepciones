@@ -89,9 +89,9 @@
 
     --font-sans: Inter, sans-serif;
     --font-serif: Source Serif 4, serif;
-    --font-mono: IBM Plex Mono, monospace;
+    --font-mono: IBM Plex Sans, monospace;
 
-    --radius: 0.375rem;
+    --radius: 0.7rem;
 
     --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
     --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
@@ -106,9 +106,9 @@
 .dark {
     --background: oklch(0.26 0.03 262.67);
     --foreground: oklch(0.93 0.01 261.82);
-    --card: oklch(0.35 0.02 255.68);
+    --card: oklch(0.25 0.03 264.95);
     --card-foreground: oklch(0.93 0.01 261.82);
-    --popover: oklch(0.35 0.02 255.68);
+    --popover: oklch(0.23 0.03 263.57);
     --popover-foreground: oklch(0.93 0.01 261.82);
     --primary: oklch(0.56 0.24 260.92);
     --primary-foreground: oklch(1 0 0);
@@ -136,14 +136,14 @@
     --sidebar-border: oklch(0.35 0.04 261.4);
     --sidebar-ring: oklch(0.56 0.24 260.92);
 
-    --shadow-2xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-    --shadow-xs: 0 1px 3px 0px oklch(0 0 0 / 0.05);
-    --shadow-sm: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-    --shadow: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
-    --shadow-md: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
-    --shadow-lg: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
-    --shadow-xl: 0 1px 3px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
-    --shadow-2xl: 0 1px 3px 0px oklch(0 0 0 / 0.25);
+    --shadow-2xs: 0 2.5px 6px 0px oklch(0 0 0 / 0.05);
+    --shadow-xs: 0 2.5px 6px 0px oklch(0 0 0 / 0.05);
+    --shadow-sm: 0 2.5px 6px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow: 0 2.5px 6px 0px oklch(0 0 0 / 0.1), 0 1px 2px -1px oklch(0 0 0 / 0.1);
+    --shadow-md: 0 2.5px 6px 0px oklch(0 0 0 / 0.1), 0 2px 4px -1px oklch(0 0 0 / 0.1);
+    --shadow-lg: 0 2.5px 6px 0px oklch(0 0 0 / 0.1), 0 4px 6px -1px oklch(0 0 0 / 0.1);
+    --shadow-xl: 0 2.5px 6px 0px oklch(0 0 0 / 0.1), 0 8px 10px -1px oklch(0 0 0 / 0.1);
+    --shadow-2xl: 0 2.5px 6px 0px oklch(0 0 0 / 0.25);
 }
 
 @layer base {
