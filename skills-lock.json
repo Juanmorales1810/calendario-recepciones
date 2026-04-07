@@ -1,6 +1,11 @@
 {
   "version": 1,
   "skills": {
+    "pwa-service-worker": {
+      "source": "juanmorales1810/pwa-service-worker",
+      "sourceType": "github",
+      "computedHash": "627e8f9586ec8c9d3d8c813d60fde206d5e40dc67589c2d549a2ffc5c40146d1"
+    },
     "vercel-react-best-practices": {
       "source": "vercel-labs/agent-skills",
       "sourceType": "github",
